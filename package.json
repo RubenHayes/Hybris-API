@@ -7,8 +7,5 @@
     "generate": "node index.js"
   },
   "author": "PnP TCoE",
-  "license": "MIT",
-    "dependencies": {
-    "puppeteer": "^22.0.0"
-  }
+  "license": "MIT"
 }
