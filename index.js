@@ -9,7 +9,7 @@
 //   cd "C:\Users\x160002976\OneDrive - Pick n Pay\Desktop\Work\Automation\Reports"
 //   node index.js
 //
-// Output: postman-report.html - Zains change
+// Output: postman-report.html - Rubens change
 
 'use strict';
 
