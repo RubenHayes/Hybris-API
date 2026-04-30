@@ -60,9 +60,9 @@ const requestBlocks = executions.map(exec => {
     const failed = a.error !== null && a.error !== undefined;
     const errorMsg = failed ? escapeHtml(a.error && (a.error.message || String(a.error))) : '';
     const statusBadge = failed
-      ? '<span style="background:#f1c40f;color:#fff;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:bold;">FAIL</span>'
-      : '<span style="background:#3498db;color:#fff;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:bold;">PASS</span>';
-    const rowBg = failed ? '#fef9e7' : '#d6eaf8';
+      ? '<span style="background:#e74c3c;color:#fff;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:bold;">FAIL</span>'
+      : '<span style="background:#2ecc71;color:#fff;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:bold;">PASS</span>';
+    const rowBg = failed ? '#fadbd8' : '#d5f5e3';
 
     totalTests++;
     if (failed) failedTests++; else passedTests++;
@@ -71,7 +71,7 @@ const requestBlocks = executions.map(exec => {
       <tr style="background:${rowBg};">
         <td style="padding:8px 12px;border-bottom:1px solid #ddd;">${testName}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #ddd;text-align:center;">${statusBadge}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #ddd;color:#b7950b;font-size:13px;">${errorMsg}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #ddd;color:#c0392b;font-size:13px;">${errorMsg}</td>
       </tr>`;
   });
 
@@ -120,8 +120,8 @@ const html = `<!DOCTYPE html>
     .card { flex: 1; min-width: 140px; background: #fff; border-radius: 8px; padding: 20px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
     .card .value { font-size: 32px; font-weight: 700; }
     .card .label { font-size: 13px; color: #7f8c8d; margin-top: 4px; }
-    .card.passed .value { color: #3498db; }
-    .card.failed .value { color: #f1c40f; }
+    .card.passed .value { color: #2ecc71; }
+    .card.failed .value { color: #e74c3c; }
     .card.rate .value { color: #3498db; }
     .chart-section { background: #fff; border-radius: 8px; padding: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); margin-bottom: 30px; text-align: center; }
     .chart-section h2 { font-size: 18px; margin-bottom: 16px; color: #2c3e50; }
@@ -180,8 +180,8 @@ const html = `<!DOCTYPE html>
         labels: ['Passed', 'Failed'],
         datasets: [{
           data: [${passedTests}, ${failedTests}],
-          backgroundColor: ['#3498db', '#f1c40f'],
-          borderColor: ['#2980b9', '#d4ac0d'],
+          backgroundColor: ['#2ecc71', '#e74c3c'],
+          borderColor: ['#27ae60', '#c0392b'],
           borderWidth: 2
         }]
       },
@@ -208,21 +208,3 @@ const html = `<!DOCTYPE html>
 
 fs.writeFileSync(outputPath, html, 'utf8');
 console.log('✅ Report generated: postman-report.html');
-
-// Generate PDF from the HTML report
-const puppeteer = require('puppeteer');
-const pdfPath = path.join(__dirname, 'postman-report.pdf');
-
-(async () => {
-  const browser = await puppeteer.launch({ headless: 'new' });
-  const page = await browser.newPage();
-  await page.goto(`file://${outputPath}`, { waitUntil: 'networkidle0' });
-  await page.pdf({
-    path: pdfPath,
-    format: 'A4',
-    printBackground: true,
-    margin: { top: '20mm', bottom: '20mm', left: '15mm', right: '15mm' }
-  });
-  await browser.close();
-  console.log(`✅ PDF report saved to: ${pdfPath}`);
-})();
