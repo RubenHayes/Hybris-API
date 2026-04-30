@@ -1,0 +1,14 @@
+{
+  "name": "postman-html-reporter",
+  "version": "1.0.0",
+  "description": "Custom HTML report generator for Postman CLI JSON output",
+  "main": "index.js",
+  "scripts": {
+    "generate": "node index.js"
+  },
+  "author": "PnP TCoE",
+  "license": "MIT",
+    "dependencies": {
+    "puppeteer": "^22.0.0"
+  }
+}
