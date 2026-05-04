@@ -2,9 +2,13 @@
 workspace:
   id: fd10f795-1726-4378-84c9-61fae374932e
 
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
 cloudResources:
   collections:
     ..\postman\collections\01 - Framework: 36662043-beddf583-b15e-4df7-9aaa-ad649e295688
+  environments:
+    ..\postman\environments\Spike QA.environment.yaml: 36662043-c634a1b3-494a-4e31-b1b7-fed7ff44b814
 
 # All resources in the `postman/` folder are automatically registered in Local View.
 # Point to additional files outside the `postman/` folder to register them individually. Example:
