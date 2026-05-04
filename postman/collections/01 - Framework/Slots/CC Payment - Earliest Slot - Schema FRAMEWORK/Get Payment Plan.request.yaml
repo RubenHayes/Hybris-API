@@ -1,0 +1,487 @@
+$kind: http-request
+url: "{{pnpOne}}/users/current/carts/{{cart}}/paymentplan?phase=CHECKOUT&lang=en&curr=ZAR"
+method: GET
+headers:
+  accept: application/json, text/plain, */*
+  accept-language: en-US,en;q=0.9
+  authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJhY3IiOiJodHRwOlwvXC9waWNrbnBheS5jby56YVwvb2lkY1wvYXV0aGxldmVsc1wvMyIsInN1YiI6IjUxRUQ5NTUxOEVDQzFFRUVBREMwOThCMjE0MDQ3NUZGIiwiYXVkIjpbInN0b3JlZnJvbnQyIl0sImFtciI6WyJQV0QiXSwic2NvcGUiOlsib3BlbmlkIiwib2ZmbGluZV9hY2Nlc3MiXSwiaXNzIjoiaHR0cHM6XC9cL3EtbG9naW4ucG5wLmNvLnphXC8iLCJleHAiOjE3NDM0MjA5MDcsImlhdCI6MTc0MzQxMzcwNywianRpIjoiMzA3ZmZhYzQtM2QxOC00MDQyLTgyZTYtMzdmN2EzYjRjNTQ1In0.V-KbOQe3vi78chPCHf_6gvGC1JaNMb9azvhzU1VD6CeL5lj8xW0YvnrxE0V9p7NPX-Q9KPfzmSnzWv1PC5yO0xQwcsKf7xnRSt8hivzjUaZdxXXTSwaxG1uDpaf1uOVfeuKDIWrC6pSiCoGkQz7pas9j1VlQvI0SwqIPYTL5iYTP2JgXisNP9HWOc_Ckm69dzT_hXb_3WGzye-TJ8P2n5nT_g6t3VqRaFaDnWtfvifjaXJpVcpN_zZIiHTSMnZETcNB5ScFGTxgO01CqetiUhgqAQxRNSelQKy8PfseluKLaLPRZ5y8Q44OxCasbGQoASf_vzmF2GrDaQY4xGPcL_w
+  if-none-match: '"0df73636d776fd7eb6987b8ac11c566d7:dtagent10309250310100759caxM:dtagent10309250310100759caxM"'
+  priority: u=1, i
+  referer: https://www-qa.pnp.co.za/checkout/payment-details-v2
+  sec-ch-ua: '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"'
+  sec-ch-ua-mobile: ?0
+  sec-ch-ua-platform: '"Windows"'
+  sec-fetch-dest: empty
+  sec-fetch-mode: cors
+  sec-fetch-site: same-origin
+  user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36
+  x-anonymous-consents: "%5B%5D"
+  x-pnp-cache-key: smartshopper
+  Cookie: JSESSIONID=B9563442D0601C8C3AB9400C7AD9260C; _hjSessionUser_898265=eyJpZCI6IjYxYTg3ZWM4LWI1YzItNWRhMy05MTZlLWMzY2ZhNTI2NDY1NiIsImNyZWF0ZWQiOjE3MTIxMzE5NTA5OTAsImV4aXN0aW5nIjp0cnVlfQ==; fw_utm={%22value%22:%22{}%22%2C%22createTime%22:%222024-08-07T10:36:05.210Z%22}; fw_uid={%22value%22:%2227089601-5e84-4993-ae48-6d0f7b424791%22%2C%22createTime%22:%222024-08-07T10:36:05.213Z%22}; fw_se={%22value%22:%22fws2.e388a6e4-674f-41b2-8317-004172e0a1c1.1.1723026965225%22%2C%22createTime%22:%222024-08-07T10:36:05.225Z%22}; _tt_enable_cookie=1; _ttp=5kYsFL0EVmV-3Bjv9zsyueR_eAd; _ga_H5WBTE0R4Q=GS1.1.1728551814.25.0.1728551822.52.0.0; _ga=GA1.3.660413003.1711456793; rxVisitor=1712059251594LR9KVK06G4L1E7RI67SAR90LPCS683MI; route=e9f8c92967f0a60608a8fa47bac4e8a8; dtCookie=v_4_srv_1_sn_99C5589627F9A7220832E3F525008289_perc_100000_ol_0_mul_1_app-3A3ca1caea4eab4b2e_0; _gid=GA1.3.344116660.1743405907; scarab.visitor=%221DA1F95FCAE2AB6D%22; scarab.profile=%22107829_EA%7C1743412054%22; ConstructorioID_session_id=272; ConstructorioID_client_id=f5166496-b597-4f40-b198-fcffcfea221c; ConstructorioID_session={"sessionId":272,"lastTime":1743412743777}; _ga_262S91JN8X=GS1.3.1743405908.226.1.1743413707.60.0.0
+queryParams:
+  phase: CHECKOUT
+  lang: en
+  curr: ZAR
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: GET /users/current/carts/{{cart}}/paymentplan\r
+
+      // Purpose: Retrieves payment plan details for the active cart at checkout\r
+
+      // Auth: Bearer Token {{accessToken}}\r
+
+      // Expected status: 200 OK\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Test Configuration ~~ 🧩\r
+
+      var runBaselineTests   = pm.collectionVariables.get(\"runBaselineTests\");    // Set to false to skip baseline tests\r
+
+      var runFunctionalTests = pm.collectionVariables.get(\"runFunctionalTests\");  // Set to false to skip functional tests \r
+
+      var environmentFlag    = pm.environment.name;                               // Get the current environment name\r
+
+      \r
+
+      // 🧩 ~~ Strict Schema Toggle ~~ 🧩\r
+
+      // Uncomment the line below to force strict validation ON for this request only\r
+
+      var strictSchemaValidation = true;\r
+
+      \r
+
+      // Use collection variable (default behavior) - comment this out if you want to override the collection variable value\r
+
+      //var strictSchemaValidationRaw = pm.collectionVariables.get(\"strictSchemaValidation\");\r
+
+      //var strictSchemaValidation    =\r
+
+      //    strictSchemaValidationRaw === true || strictSchemaValidationRaw === \"true\";\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      pm.test(\"[Payment Plan Controller] Get Payment Plan - Status code is 200\", () => {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"[Payment Plan Controller] Get Payment Plan - Response status is OK\", () => {\r
+
+      \    pm.expect(pm.response.status).to.eq(\"OK\");\r
+
+      });\r
+
+      \r
+
+      // Conditional check for further testing\r
+
+      if (pm.response.code === 200) {\r
+
+      \r
+
+      \    // 🧩 ~~ Variable Declarations ~~ 🧩\r
+
+      \    var jsonData              = pm.response.json();\r
+
+      \    var paymentIntentions     = jsonData.paymentIntentions || [];\r
+
+      \    var firstIntention        = paymentIntentions[0] || {};\r
+
+      \    var paymentInfo           = firstIntention.paymentInfo || {};\r
+
+      \    var firstIntentionAmount  = firstIntention?.amount;\r
+
+      \    var firstIntentionCode    = firstIntention?.code;\r
+
+      \    var paymentIntentionsCode = pm.collectionVariables.get(\"paymentIntentionsCode\")\r
+
+      \    var totalPrice            = pm.collectionVariables.get(\"totalPrice\")\r
+
+      \r
+
+      \    if (runBaselineTests) {\r
+
+      \r
+
+      \        // 🧩 ~~ Schema Definition ~~ 🧩\r
+
+      \        const responseSchema = {\r
+
+      \            type: \"object\",\r
+
+      \            additionalProperties: !strictSchemaValidation,\r
+
+      \            required: [\r
+
+      \                \"amountPaid\",\r
+
+      \                \"coversCartTotal\",\r
+
+      \                \"paymentExplainer\",\r
+
+      \                \"paymentIntentions\"\r
+
+      \            ],\r
+
+      \            properties: {\r
+
+      \                amountPaid: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\"payments\", \"total\"],\r
+
+      \                    properties: {\r
+
+      \                        payments: { type: \"array\" },\r
+
+      \                        total: {\r
+
+      \                            type: \"object\",\r
+
+      \                            additionalProperties: !strictSchemaValidation,\r
+
+      \                            required: [\r
+
+      \                                \"currencyIso\",\r
+
+      \                                \"formattedValue\",\r
+
+      \                                \"value\"\r
+
+      \                            ],\r
+
+      \                            properties: {\r
+
+      \                                currencyIso:       { type: \"string\" },\r
+
+      \                                formattedValue:    { type: \"string\" },\r
+
+      \                                value:             { type: \"number\" }\r
+
+      \                            }\r
+
+      \                        }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                coversCartTotal: { type: \"boolean\" },\r
+
+      \                paymentExplainer: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\"cartCheckoutInfoMessage\", \"cartInfoMessage\"],\r
+
+      \                    properties: {\r
+
+      \                        cartCheckoutInfoMessage:   { type: \"string\" },\r
+
+      \                        cartInfoMessage:           { type: \"string\" }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                paymentIntentions: {\r
+
+      \                    type: \"array\",\r
+
+      \                    items: {\r
+
+      \                        type: \"object\",\r
+
+      \                        additionalProperties: !strictSchemaValidation,\r
+
+      \                        required: [\r
+
+      \                            \"amount\",\r
+
+      \                            \"code\",\r
+
+      \                            \"paymentInfo\",\r
+
+      \                            \"paymentMode\",\r
+
+      \                            \"requiresExecution\",\r
+
+      \                            \"status\"\r
+
+      \                        ],\r
+
+      \                        properties: {\r
+
+      \                            amount: { type: \"number\" },\r
+
+      \                            code:   { type: \"string\" },\r
+
+      \                            paymentInfo: {\r
+
+      \                                type: \"object\",\r
+
+      \                                additionalProperties: !strictSchemaValidation,\r
+
+      \                                required: [\r
+
+      \                                    \"type\",\r
+
+      \                                    \"cardAccountHolderName\",\r
+
+      \                                    \"cardAccountNumber\",\r
+
+      \                                    \"cardAccountNumberMasked\",\r
+
+      \                                    \"cardCardType\",\r
+
+      \                                    \"code\",\r
+
+      \                                    \"cardExpirationMonth\",\r
+
+      \                                    \"cardExpirationYear\",\r
+
+      \                                    \"creditCardTypeName\",\r
+
+      \                                    \"defaultCard\",\r
+
+      \                                    \"id\",\r
+
+      \                                    \"issuer\",\r
+
+      \                                    \"level\",\r
+
+      \                                    \"paymentType\",\r
+
+      \                                    \"saved\",\r
+
+      \                                    \"vendor\",\r
+
+      \                                    \"verified\"\r
+
+      \                                ],\r
+
+      \                                properties: {\r
+
+      \                                    type:                           { type: \"string\" },\r
+
+      \                                    cardAccountHolderName:          { type: \"string\" },\r
+
+      \                                    cardAccountNumber:              { type: \"string\" },\r
+
+      \                                    cardAccountNumberMasked:        { type: \"string\" },\r
+
+      \                                    cardCardType:                   { type: \"string\" },\r
+
+      \                                    cardExpirationDisplay:          { type: \"string\" },\r
+
+      \                                    cardExpirationMonth:            { type: \"number\" },\r
+
+      \                                    cardExpirationYear:             { type: \"number\" },\r
+
+      \                                    cardExpired:                    { type: \"boolean\" },\r
+
+      \                                    cardExpiredOnFulfilmentDate:    { type: \"boolean\" },\r
+
+      \                                    cardIssueNumber:                { type: [\"string\", \"null\"] },\r
+
+      \                                    cardType:                       { type: \"string\" },\r
+
+      \                                    code:                           { type: \"string\" },                                    \r
+
+      \                                    creditCardTypeName:             { type: \"string\" },\r
+
+      \                                    countryCode:                    { type: \"string\" },\r
+
+      \                                    defaultCard:                    { type: \"boolean\" },\r
+
+      \                                    displayMaskedCardNumber:        { type: \"string\" },\r
+
+      \                                    displayPaymentType:             { type: \"string\" },\r
+
+      \                                    id:                             { type: \"string\" },\r
+
+      \                                    issuer:                         { type: \"string\" },\r
+
+      \                                    level:                          { type: \"string\" },\r
+
+      \                                    paymentType:                    { type: \"string\" },\r
+
+      \                                    saved:                          { type: \"boolean\" },\r
+
+      \                                    vendor:                         { type: \"string\" },\r
+
+      \                                    verified:                       { type: \"boolean\" }\r
+
+      \                                }\r
+
+      \                            },\r
+
+      \                            paymentMode:        { type: \"string\" },\r
+
+      \                            requiresExecution:  { type: \"boolean\" },\r
+
+      \                            status:             { type: \"string\" }\r
+
+      \                        }\r
+
+      \                    }\r
+
+      \                }\r
+
+      \            }\r
+
+      \        };\r
+
+      \r
+
+      \        // 🧩 ~~ Schema Validation Test ~~ 🧩\r
+
+      \        pm.test(\"[Payment Plan Controller] Get Payment Plan - Response matches schema\", () => {\r
+
+      \            pm.response.to.have.jsonSchema(responseSchema);\r
+
+      \        });\r
+
+      \    }\r
+
+      \r
+
+      \    // 🧩 ~~ Functional Tests ~~ 🧩\r
+
+      \    if (runFunctionalTests) {\r
+
+      \r
+
+      \        // --- Complementary Functional Tests ---\r
+
+      \        pm.test(\"[Payment Plan Controller] Get Payment Plan - PaymentIntentions list is not empty\", () => {\r
+
+      \            pm.expect(paymentIntentions.length).to.be.greaterThan(0);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Payment Plan Controller] Get Payment Plan - Payment Intention is using correct Type\", () => {\r
+
+      \            pm.expect(paymentInfo.type).to.eq(\"creditCardPaymentInfoWsDTO\");\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Payment Plan Controller] Get Payment Plan - PaymentIntentions is using correct card holder\", () => {\r
+
+      \            pm.expect(paymentInfo.cardAccountHolderName).to.eq(\"API Auto\");\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Payment Plan Controller] Get Payment Plan - Selected credit card is not expired\", () => {\r
+
+      \            pm.expect(paymentInfo.cardExpired).to.be.false;\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Payment Plan Controller] Get Payment Plan - Selected credit card is saved\", () => {\r
+
+      \            pm.expect(paymentInfo.saved).to.be.true;\r
+
+      \        });\r
+
+      \r
+
+      \        // --- Business Rule Functional Tests ---\r
+
+      \        pm.test(\"[Payment Plan Controller] Get Payment Plan - RoversCartTotal is false\", () => {\r
+
+      \            pm.expect(jsonData.coversCartTotal).to.eq(false);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Payment Plan Controller] Get Payment Plan - Payment Intention Amount Is Correct\", () => {\r
+
+      \            pm.expect(firstIntentionAmount).to.eq(totalPrice);\r
+
+      \        });        \r
+
+      \r
+
+      \        pm.test(\"[Payment Plan Controller] Get Payment Plan - Payment Intention Coode Is Correct\", () => {\r
+
+      \            pm.expect(firstIntentionCode).to.eq(paymentIntentionsCode);\r
+
+      \        }); \r
+
+      \r
+
+      \        pm.test(\"[Payment Plan Controller] Get Payment Plan - Payment mode is correct\", () => {\r
+
+      \            pm.expect(firstIntention.paymentMode).to.eq(\"PAY_BY_CARD\");\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Payment Plan Controller] Get Payment Plan - Payment Intention still requires execution\", () => {\r
+
+      \            pm.expect(firstIntention.requiresExecution).to.be.true;\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Payment Plan Controller] Get Payment Plan - Payment Intention is in active status\", () => {\r
+
+      \            pm.expect(firstIntention.status).to.eq(\"ACTIVE\");\r
+
+      \        });\r
+
+      \    }\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      }\r
+
+      else {\r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(`Response Code - ${pm.response.code}`);\r
+
+      \    console.log(pm.response.text());\r
+
+      }"
+    language: text/javascript
+order: 24000

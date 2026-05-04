@@ -1,0 +1,154 @@
+$kind: http-request
+url: "{{grocLogin}}"
+method: POST
+headers:
+  Content-Type: application/x-www-form-urlencoded
+  Authorization: "{{oneLoginAuth}}"
+  Accept: "*/*"
+body:
+  type: text
+  content: "{{one1TFA}}"
+auth:
+  type: noauth
+scripts:
+  - type: beforeRequest
+    code: 'console.log("🧩 ~~ Start of : xx Scenario ~~ 🧩")'
+    language: text/javascript
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: POST https://q-login.pnp.co.za/token\r
+
+      // Purpose: Attempt login that requires 2FA\r
+
+      // Expected: 202 Accepted + 2FA options returned\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      const assertStatus = eval(pm.globals.get(\"assertStatus\"));\r
+
+      assertStatus(202, \"Accepted\");\r
+
+      \r
+
+      // 🧩 ~~ Schema Validation ~~ 🧩\r
+
+      const assertJsonSchema = eval(pm.globals.get(\"assertJsonSchema\"));\r
+
+      const loginSchema      = JSON.parse(pm.globals.get(\"loginSchema\"));\r
+
+      assertJsonSchema(loginSchema, \"Login response schema\");\r
+
+      \r
+
+      // Conditional check for further testing\r
+
+      if (pm.response.code === 202) {\r
+
+      \r
+
+      \    // 🧩 ~~ Variable Declarations ~~ 🧩\r
+
+      \    var jsonData    = pm.response.json();\r
+
+      \    var authMethod0 = jsonData?.authenticationMethods?.[0];\r
+
+      \    var authMethod1 = jsonData?.authenticationMethods?.[1];\r
+
+      \    var authMethod2 = jsonData?.authenticationMethods?.[2];\r
+
+      \    var authMethod3 = jsonData?.authenticationMethods?.[3];\r
+
+      \    var authMethod4 = jsonData?.authenticationMethods?.[4];\r
+
+      \r
+
+      \    // 🧩 ~~ Functional Tests ~~ 🧩\r
+
+      \    pm.test(\"Status is 2FA Required\", () => {\r
+
+      \        pm.expect(jsonData.status).to.eq(\"2FA Required\");\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"otpDelivered is false\", () => {\r
+
+      \        pm.expect(jsonData.otpDelivered).to.be.false;\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"Authentication methods contains 5 methods\", () => {\r
+
+      \        pm.expect(jsonData.authenticationMethods.length).to.eq(5);\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"Authentication Method 1 Is Correct\", () => {\r
+
+      \        pm.expect(authMethod0.deliveryMethod.type).to.eq(\"SMS\");\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"Authentication Method 2 Is Correct\", () => {\r
+
+      \        pm.expect(authMethod1.deliveryMethod.type).to.eq(\"EMAIL\");\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"Authentication Method 3 Is Correct\", () => {\r
+
+      \        pm.expect(authMethod2.type).to.eq(\"PASSWORD\");\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"Authentication Method 4 Is Correct\", () => {\r
+
+      \        pm.expect(authMethod3.type).to.eq(\"SMART_SHOPPER_CARD_NUMBER\");\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"Authentication Method 5 Is Correct\", () => {\r
+
+      \        pm.expect(authMethod4.type).to.eq(\"SMART_SHOPPER_CARD_NUMBER_AND_PASSPORT_NUMBER\");\r
+
+      \    });\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      \r
+
+      } else {\r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(`Reponse Code - ${pm.response.code}`);  // log response code to console if request fails to aid debugging\r
+
+      \    console.log(pm.response.text());                    // log response body to console if request fails to aid debugging\r
+
+      }"
+    language: text/javascript
+order: 1000

@@ -1,0 +1,177 @@
+name: Spike QA
+values:
+  - key: '=== GROC VARIABLES ==='
+    value: ''
+    disabled: true
+  - key: grocLoginAuth
+    value: Basic ODE4OTAyYTgtMjdiZC00OGIzLTkzOTMtYjJlZWY4MmVlNGU2OmI1ZjVkODE4NTk2YjNkMTAxZmI5YjkyNWVhYzA0NTNm
+    description: Basic token for Login call
+  - key: grocLoginWithOtpAuth
+    value: Basic b25lLWFwcC1kcm9pZC1xYTpvbmUtYXBwLWRyb2lkLXFhLXNlY3JldA==
+    description: Basic token for Login With OTP call
+  - key: backOffice
+    value: 'https://hyb-bo.qa.pnpapi.co.za'
+  - key: grocLogin
+    value: 'https://q-login.pnp.co.za/token'
+  - key: grocLoginOtpReq
+    value: 'https://q-login.pnp.co.za/auth/onetimepasswordrequests'
+  - key: groceries
+    value: 'https://www-qa.pnp.co.za/pnphybris/v2/pnp-spa'
+  - key: groceriesOriginHeader
+    value: 'https://www-qa.pnp.co.za'
+  - key: grocWynbergPos
+    value: WYNBERG
+  - key: grocProduct1
+    value: 000000000000619026_EA
+    description: Humpty Dumpty Eggs 30
+  - key: grocProduct2
+    value: ''
+    description: Clover Krush Fruit Juice Blend 100% Berries 1.5L
+  - key: grocProduct3
+    value: ''
+    description: PnP Full Cream Fresh Milk 2L
+  - key: grocProduct4
+    value: ''
+    description: PnP Porterhouse Steak
+  - key: grocProduct5
+    value: ''
+    description: PnP Dates Medjool 250g - Should not be available for WC45
+  - key: grocProduct6
+    value: ''
+    description: Steri Stumpie Bubblegum Milk 350ml
+  - key: grocProduct7
+    value: ''
+    description: PnP Extra Fruit Apricot Jam 450g
+  - key: grocProduct8
+    value: ''
+    description: Aquafresh Intense White & Shine 75ml
+  - key: grocProduct9
+    value: ''
+    description: Camel Black Price Marked Pack 20ea
+  - key: grocProduct10
+    value: ''
+    description: Stella Artois Lager 330ml x 6
+  - key: grocBuyAgain
+    value: ''
+    description: This is the list ID for apiauto1@toce.com
+  - key: grocFavourites
+    value: ''
+    description: This is the list ID for apiauto1@toce.com
+  - key: grocShoppingList
+    value: ''
+    description: This is the list ID for apiauto1@toce.com
+  - key: grocStandard
+    value: ''
+  - key: grocSaver
+    value: ''
+  - key: grocPaymentExecutionBody
+    value: |-
+      {
+          "phase": "CHECKOUT",
+          "returnURL": "https://www-qa.pnp.co.za/checkout/awaiting-payment",
+          "cancelURL": "https://www-qa.pnp.co.za/checkout/payment-details/cancel"
+      }
+  - key: '=== GMD VARIABLES ==='
+    value: ''
+    disabled: true
+  - key: gmdLoginAuth
+    value: ''
+    description: Basic token for Login call
+  - key: gmdLoginWithOtpAuth
+    value: ''
+    description: Basic token for Login With OTP call
+  - key: gmdLogin
+    value: ''
+  - key: gmdLoginOtpReq
+    value: ''
+  - key: gmd
+    value: ''
+  - key: gmdOriginHeader
+    value: ''
+  - key: gmdProduct
+    value: ''
+  - key: gmdWynbergPos
+    value: ''
+  - key: '=== CLOTHING VARIABLES ==='
+    value: ''
+    disabled: true
+  - key: '=== OF VARIABLES ==='
+    value: ''
+    disabled: true
+  - key: trailbreaker
+    value: 'https://sta-trailbreaker.picknpack.co.za/api'
+  - key: bumblebee
+    value: 'https://sta-bumblebee.picknpack.co.za/api'
+  - key: optimus
+    value: 'https://sta-optimus.picknpack.co.za/api'
+  - key: santa
+    value: 'https://sta-santa.picknpack.co.za/api/v1'
+  - key: apiKey
+    value: 727b55f8-743d-46bf-9984-d8082e7a79c7
+  - key: '=== PNP ONE VARIABLES ==='
+    value: ''
+    disabled: true
+  - key: oneLoginAuth
+    value: Basic ODE4OTAyYTgtMjdiZC00OGIzLTkzOTMtYjJlZWY4MmVlNGU2OmI1ZjVkODE4NTk2YjNkMTAxZmI5YjkyNWVhYzA0NTNm
+    description: Basic token for Login call
+  - key: oneLoginWithOtpAuth
+    value: Basic b25lLWFwcC1kcm9pZC1xYTpvbmUtYXBwLWRyb2lkLXFhLXNlY3JldA==
+    description: Basic token for Login With OTP call
+  - key: pnpOne
+    value: 'https://www-qa.pnp.co.za/pnphybris/v2/pnp-app'
+    description: Base URL
+  - key: oneOriginHeader
+    value: 'https://www-qa.pnp.co.za'
+    description: PnP One QA Origin Header
+  - key: futureTime
+    value: ''
+  - key: oneClaremontPOS
+    value: CLAREMONT
+    description: PnP One QA Claremont Point Of Service
+  - key: oneStandard
+    value: Standard APP
+    description: PnP One QA Standard Fulfilment Option
+  - key: oneProduct1
+    value: 000000000000364023_EA
+    description: PnP Live Well Super Maize Meal 2.5kg
+  - key: '=== LOGIN USERS ==='
+    value: ''
+    disabled: true
+  - key: one1TFA
+    value: grant_type=password&username=oneapiauto5@tcoe.com&password=Password1
+    description: PnP One QA User | Used For First Login Request
+  - key: one1OTP
+    value: '{"principalType": "USERNAME","principal": "oneapiauto5@tcoe.com","deliveryMethodId": "vyWf2UKuZzy0V6d7pBML4g=="}'
+    description: PnP One QA User | Used For Second Login Request
+  - key: one1Login
+    value: 'grant_type=urn:picknpay:params:oauth:grant-type:password_otp&username=oneapiauto5@tcoe.com&password=Password1&one_time_password=12345'
+    description: PnP One QA User | Used For Third Login Request
+  - key: one2TFA
+    value: grant_type=password&username=oneapiauto6@tcoe.com&password=Password1
+    description: PnP One QA User | Used For First Login Request
+  - key: one2OTP
+    value: '{"principalType": "USERNAME","principal": "oneapiauto6@tcoe.com","deliveryMethodId": "CiMMrucURG7pX/+FYiTnPA=="}'
+    description: PnP One QA User | Used For Second Login Request
+  - key: one2Login
+    value: 'grant_type=urn:picknpay:params:oauth:grant-type:password_otp&username=oneapiauto6@tcoe.com&password=Password1&one_time_password=12345'
+    description: PnP One QA User | Used For Third Login Request
+  - key: one3TFA
+    value: ''
+    description: PnP One QA User | Used For First Login Request
+  - key: one3OTP
+    value: ''
+    description: PnP One QA User | Used For Second Login Request
+  - key: one3Login
+    value: ''
+    description: PnP One QA User | Used For First Login Request
+  - key: groc1TFA
+    value: grant_type=password&username=grocapiauto5@tcoe.com&password=Password1
+    description: Groceries
+  - key: groc1OTP
+    value: '{"principalType": "USERNAME","principal": "grocapiauto5@tcoe.com","deliveryMethodId": "33kXvMOT4Asbm9l3cvo1Mw=="}'
+    description: Groceries
+  - key: groc1Login
+    value: 'grant_type=urn:picknpay:params:oauth:grant-type:password_otp&username=grocapiauto5@tcoe.com&password=Password1&one_time_password=12345'
+    description: Groceries
+  - key: appCashoffDescription
+    value: AUTO123 Cashoff Coupon (Automation)

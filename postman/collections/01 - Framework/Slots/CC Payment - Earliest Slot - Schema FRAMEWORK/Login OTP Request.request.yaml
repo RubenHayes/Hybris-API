@@ -1,0 +1,91 @@
+$kind: http-request
+url: "{{grocLoginOtpReq}}"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: "{{one1OTP}}"
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: POST https://q-login.pnp.co.za/auth/onetimepasswordrequests\r
+
+      // Purpose: Send one-time password request for a user.\r
+
+      // Expected: 201 Created + OTP details\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      const assertStatus = eval(pm.globals.get(\"assertStatus\"));\r
+
+      assertStatus(201, \"Created\");\r
+
+      \r
+
+      // 🧩 ~~ Schema Validation ~~ 🧩\r
+
+      const assertJsonSchema  = eval(pm.globals.get(\"assertJsonSchema\"));\r
+
+      const loginOTPSchema    = JSON.parse(pm.globals.get(\"loginOTPSchema\"));\r
+
+      assertJsonSchema(loginOTPSchema, \"Login OTP response schema\");\r
+
+      \r
+
+      // Conditional check for further testing\r
+
+      if (pm.response.code === 201) {\r
+
+      \r
+
+      \    // 🧩 ~~ Variable Declarations ~~ 🧩\r
+
+      \    var jsonData    = pm.response.json();\r
+
+      \r
+
+      \    // 🧩 ~~ Functional Tests ~~ 🧩\r
+
+      \    pm.test(\"'principalType' Is Correct\", () => {\r
+
+      \        pm.expect(jsonData.principalType).to.eq(\"USERNAME\");\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"OTP 'status' Is Correct\", () => {\r
+
+      \        pm.expect(jsonData.status).to.eq(\"SENT\");\r
+
+      \    });\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      \r
+
+      } else {\r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(`Reponse Code - ${pm.response.code}`);  // log response code to console if request fails to aid debugging\r
+
+      \    console.log(pm.response.text());                    // log response body to console if request fails to aid debugging\r
+
+      }"
+    language: text/javascript
+order: 2000

@@ -1,0 +1,1183 @@
+$kind: collection
+name: Hybris Setup
+scripts:
+  - type: http:afterResponse
+    code: "// ===============================\r
+
+      // ✅ Shared Status Assertion\r
+
+      // ===============================\r
+
+      pm.globals.set(\"assertStatus\", `\r
+
+      (function (expectedCode, expectedText) {\r
+
+      \    pm.test(\\`Status code is \\${expectedCode}\\`, () => {\r
+
+      \        pm.response.to.have.status(expectedCode);\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\\`Response status text is \"\\${expectedText}\"\\`, () => {\r
+
+      \        pm.expect(pm.response.status).to.eql(expectedText);\r
+
+      \    });\r
+
+      })\r
+
+      `);\r
+
+      \r
+
+      // ===============================\r
+
+      // ✅ Login Schema\r
+
+      // ===============================\r
+
+      pm.globals.set(\r
+
+      \  \"loginSchema\",\r
+
+      \  JSON.stringify({\r
+
+      \    type: \"object\",\r
+
+      \    additionalProperties: false,\r
+
+      \    required: [\r
+
+      \      \"subjectId\",\r
+
+      \      \"status\",\r
+
+      \      \"otpDelivered\",\r
+
+      \      \"authenticationMethods\"\r
+
+      \    ],\r
+
+      \    properties: {\r
+
+      \      subjectId:    { type: \"string\"  },\r
+
+      \      status:       { type: \"string\"  },\r
+
+      \      otpDelivered: { type: \"boolean\" },\r
+
+      \r
+
+      \      authenticationMethods: {\r
+
+      \        type: \"array\",\r
+
+      \        items: {\r
+
+      \          type: \"object\",\r
+
+      \          additionalProperties: false,\r
+
+      \          required: [\r
+
+      \            \"type\",\r
+
+      \            \"acr\"\r
+
+      \          ],\r
+
+      \          properties: {\r
+
+      \            type: { type: \"string\" },\r
+
+      \            acr:  { type: \"string\" },\r
+
+      \r
+
+      \            deliveryMethod: {\r
+
+      \              type: \"object\",\r
+
+      \              additionalProperties: false,\r
+
+      \              required: [\r
+
+      \                \"type\",\r
+
+      \                \"maskedTarget\",\r
+
+      \                \"id\"\r
+
+      \              ],\r
+
+      \              properties: {\r
+
+      \                type:         { type: \"string\" },\r
+
+      \                maskedTarget: { type: \"string\" },\r
+
+      \                id:           { type: \"string\" }\r
+
+      \              }\r
+
+      \            }\r
+
+      \          }\r
+
+      \        }\r
+
+      \      }\r
+
+      \    }\r
+
+      \  })\r
+
+      );\r
+
+      \r
+
+      // ===============================\r
+
+      // ✅ Login OTP Request Schema\r
+
+      // ===============================\r
+
+      pm.globals.set(\r
+
+      \  \"loginOTPSchema\",\r
+
+      \  JSON.stringify({\r
+
+      \    type: \"object\",\r
+
+      \    additionalProperties: false,\r
+
+      \    required: [\r
+
+      \      \"id\",\r
+
+      \      \"principalType\",\r
+
+      \      \"principal\",\r
+
+      \      \"country\",\r
+
+      \      \"deliveryMethodId\",\r
+
+      \      \"status\",\r
+
+      \      \"issuedAt\",\r
+
+      \      \"expiresAt\"\r
+
+      \    ],\r
+
+      \    properties: {\r
+
+      \      id:               { type: \"string\" },\r
+
+      \      principalType:    { type: \"string\" },\r
+
+      \      principal:        { type: \"string\" },\r
+
+      \      country:          { type: \"null\"   },\r
+
+      \      deliveryMethodId: { type: \"string\" },\r
+
+      \      status:           { type: \"string\" },\r
+
+      \r
+
+      \      issuedAt: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: false,\r
+
+      \        required: [\r
+
+      \          \"centuryOfEra\",\r
+
+      \          \"weekyear\",\r
+
+      \          \"monthOfYear\",\r
+
+      \          \"weekOfWeekyear\",\r
+
+      \          \"hourOfDay\",\r
+
+      \          \"minuteOfHour\",\r
+
+      \          \"secondOfMinute\",\r
+
+      \          \"millisOfSecond\",\r
+
+      \          \"yearOfEra\",\r
+
+      \          \"yearOfCentury\",\r
+
+      \          \"secondOfDay\",\r
+
+      \          \"millisOfDay\",\r
+
+      \          \"minuteOfDay\",\r
+
+      \          \"year\",\r
+
+      \          \"dayOfMonth\",\r
+
+      \          \"dayOfWeek\",\r
+
+      \          \"era\",\r
+
+      \          \"dayOfYear\",\r
+
+      \          \"chronology\",\r
+
+      \          \"zone\",\r
+
+      \          \"millis\",\r
+
+      \          \"beforeNow\",\r
+
+      \          \"afterNow\",\r
+
+      \          \"equalNow\"\r
+
+      \        ],\r
+
+      \        properties: {\r
+
+      \          centuryOfEra:   { type: \"integer\" },\r
+
+      \          weekyear:       { type: \"integer\" },\r
+
+      \          monthOfYear:    { type: \"integer\" },\r
+
+      \          weekOfWeekyear: { type: \"integer\" },\r
+
+      \          hourOfDay:      { type: \"integer\" },\r
+
+      \          minuteOfHour:   { type: \"integer\" },\r
+
+      \          secondOfMinute: { type: \"integer\" },\r
+
+      \          millisOfSecond: { type: \"integer\" },\r
+
+      \          yearOfEra:      { type: \"integer\" },\r
+
+      \          yearOfCentury:  { type: \"integer\" },\r
+
+      \          secondOfDay:    { type: \"integer\" },\r
+
+      \          millisOfDay:    { type: \"integer\" },\r
+
+      \          minuteOfDay:    { type: \"integer\" },\r
+
+      \          year:           { type: \"integer\" },\r
+
+      \          dayOfMonth:     { type: \"integer\" },\r
+
+      \          dayOfWeek:      { type: \"integer\" },\r
+
+      \          era:            { type: \"integer\" },\r
+
+      \          dayOfYear:      { type: \"integer\" },\r
+
+      \          millis:         { type: \"integer\" },\r
+
+      \          beforeNow:      { type: \"boolean\" },\r
+
+      \          afterNow:       { type: \"boolean\" },\r
+
+      \          equalNow:       { type: \"boolean\" },\r
+
+      \r
+
+      \          chronology: {\r
+
+      \            type: \"object\",\r
+
+      \            additionalProperties: false,\r
+
+      \            required: [\"zone\"],\r
+
+      \            properties: {\r
+
+      \              zone: {\r
+
+      \                type: \"object\",\r
+
+      \                additionalProperties: false,\r
+
+      \                required: [\"fixed\", \"id\"],\r
+
+      \                properties: {\r
+
+      \                  fixed: { type: \"boolean\" },\r
+
+      \                  id:    { type: \"string\"  }\r
+
+      \                }\r
+
+      \              }\r
+
+      \            }\r
+
+      \          },\r
+
+      \r
+
+      \          zone: {\r
+
+      \            type: \"object\",\r
+
+      \            additionalProperties: false,\r
+
+      \            required: [\"fixed\", \"id\"],\r
+
+      \            properties: {\r
+
+      \              fixed: { type: \"boolean\" },\r
+
+      \              id:    { type: \"string\"  }\r
+
+      \            }\r
+
+      \          }\r
+
+      \        }\r
+
+      \      },\r
+
+      \r
+
+      \      expiresAt: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: false,\r
+
+      \        required: [\r
+
+      \          \"centuryOfEra\",\r
+
+      \          \"weekyear\",\r
+
+      \          \"monthOfYear\",\r
+
+      \          \"weekOfWeekyear\",\r
+
+      \          \"hourOfDay\",\r
+
+      \          \"minuteOfHour\",\r
+
+      \          \"secondOfMinute\",\r
+
+      \          \"millisOfSecond\",\r
+
+      \          \"yearOfEra\",\r
+
+      \          \"yearOfCentury\",\r
+
+      \          \"secondOfDay\",\r
+
+      \          \"millisOfDay\",\r
+
+      \          \"minuteOfDay\",\r
+
+      \          \"year\",\r
+
+      \          \"dayOfMonth\",\r
+
+      \          \"dayOfWeek\",\r
+
+      \          \"era\",\r
+
+      \          \"dayOfYear\",\r
+
+      \          \"chronology\",\r
+
+      \          \"zone\",\r
+
+      \          \"millis\",\r
+
+      \          \"beforeNow\",\r
+
+      \          \"afterNow\",\r
+
+      \          \"equalNow\"\r
+
+      \        ],\r
+
+      \        properties: {\r
+
+      \          centuryOfEra:   { type: \"integer\" },\r
+
+      \          weekyear:       { type: \"integer\" },\r
+
+      \          monthOfYear:    { type: \"integer\" },\r
+
+      \          weekOfWeekyear: { type: \"integer\" },\r
+
+      \          hourOfDay:      { type: \"integer\" },\r
+
+      \          minuteOfHour:   { type: \"integer\" },\r
+
+      \          secondOfMinute: { type: \"integer\" },\r
+
+      \          millisOfSecond: { type: \"integer\" },\r
+
+      \          yearOfEra:      { type: \"integer\" },\r
+
+      \          yearOfCentury:  { type: \"integer\" },\r
+
+      \          secondOfDay:    { type: \"integer\" },\r
+
+      \          millisOfDay:    { type: \"integer\" },\r
+
+      \          minuteOfDay:    { type: \"integer\" },\r
+
+      \          year:           { type: \"integer\" },\r
+
+      \          dayOfMonth:     { type: \"integer\" },\r
+
+      \          dayOfWeek:      { type: \"integer\" },\r
+
+      \          era:            { type: \"integer\" },\r
+
+      \          dayOfYear:      { type: \"integer\" },\r
+
+      \          millis:         { type: \"integer\" },\r
+
+      \          beforeNow:      { type: \"boolean\" },\r
+
+      \          afterNow:       { type: \"boolean\" },\r
+
+      \          equalNow:       { type: \"boolean\" },\r
+
+      \r
+
+      \          chronology: {\r
+
+      \            type: \"object\",\r
+
+      \            additionalProperties: false,\r
+
+      \            required: [\"zone\"],\r
+
+      \            properties: {\r
+
+      \              zone: {\r
+
+      \                type: \"object\",\r
+
+      \                additionalProperties: false,\r
+
+      \                required: [\"fixed\", \"id\"],\r
+
+      \                properties: {\r
+
+      \                  fixed: { type: \"boolean\" },\r
+
+      \                  id:    { type: \"string\"  }\r
+
+      \                }\r
+
+      \              }\r
+
+      \            }\r
+
+      \          },\r
+
+      \r
+
+      \          zone: {\r
+
+      \            type: \"object\",\r
+
+      \            additionalProperties: false,\r
+
+      \            required: [\"fixed\", \"id\"],\r
+
+      \            properties: {\r
+
+      \              fixed: { type: \"boolean\" },\r
+
+      \              id:    { type: \"string\"  }\r
+
+      \            }\r
+
+      \          }\r
+
+      \        }\r
+
+      \      }\r
+
+      \    }\r
+
+      \  })\r
+
+      );\r
+
+      \r
+
+      // ===============================\r
+
+      // ✅ Login with OTP Schema\r
+
+      // ===============================\r
+
+      pm.globals.set(\r
+
+      \  \"loginWithOTPSchema\",\r
+
+      \  JSON.stringify({\r
+
+      \    type: \"object\",\r
+
+      \    additionalProperties: false,\r
+
+      \    required: [\r
+
+      \        \"access_token\",\r
+
+      \        \"token_type\",\r
+
+      \        \"expires_in\",\r
+
+      \        \"scope\",\r
+
+      \        \"id_token\",\r
+
+      \        \"refresh_token\",\r
+
+      \        \"device_token\"\r
+
+      \    ],\r
+
+      \    properties: {\r
+
+      \        access_token:  { type: \"string\"  },\r
+
+      \        token_type:    { type: \"string\"  },\r
+
+      \        refresh_token: { type: \"string\"  },\r
+
+      \        device_token:  { type: \"string\"  },\r
+
+      \        expires_in:    { type: \"integer\" },\r
+
+      \        scope:         { type: \"string\"  },\r
+
+      \        id_token:      { type: \"string\"  }\r
+
+      \    }\r
+
+      \  })\r
+
+      );\r
+
+      \r
+
+      // ===============================\r
+
+      // ✅ Create Cart Schema\r
+
+      // ===============================\r
+
+      pm.globals.set(\r
+
+      \  \"createCartSchema\",\r
+
+      \  JSON.stringify({\r
+
+      \    type: \"object\",\r
+
+      \    additionalProperties: false,\r
+
+      \    required: [\r
+
+      \      \"type\",\r
+
+      \      \"allowPackagingInstructions\",\r
+
+      \      \"allowShoppingBagsCollection\",\r
+
+      \      \"allowShoppingBagsDelivery\",\r
+
+      \      \"appliedOrderPromotions\",\r
+
+      \      \"appliedProductPromotions\",\r
+
+      \      \"autoAssigned\",\r
+
+      \      \"baseStore\",\r
+
+      \      \"cartSizeEnabled\",\r
+
+      \      \"code\",\r
+
+      \      //\"deliveryAddress\",           ## Causes issues with HC06\r
+
+      \      //\"deliveryInstructions\",      ## Causes issues with HC06\r
+
+      \      \"driverTip\",\r
+
+      \      \"entries\",\r
+
+      \      \"farAwayRadius\",\r
+
+      \      \"fulfilmentOption\",\r
+
+      \      \"guid\",\r
+
+      \      //\"mobileNumber\",              ## Causes issues with HC06\r
+
+      \      \"orderFlowVersion\",\r
+
+      \      //\"pointOfService\",            ## Causes issues with HC06\r
+
+      \      \"shoppingBagPreference\",\r
+
+      \      \"summary\",\r
+
+      \      \"totalCouponSavings\",\r
+
+      \      \"totalItems\",\r
+
+      \      \"totalPrice\",\r
+
+      \      \"totalPriceWithTax\",\r
+
+      \      \"totalPriceWithTolerances\",\r
+
+      \      \"totalSavings\",\r
+
+      \      \"totalSavingsExcludingCoupons\",\r
+
+      \      \"totalTolerance\",\r
+
+      \      \"walletPaymentExlplainerInfo\",\r
+
+      \      \"allowDeliveryInstructions\",\r
+
+      \      \"bulkOperationInProgress\",\r
+
+      \      \"customerSelectedPointOfService\",\r
+
+      \      //\"minimumSpend\",             ## Causes issues with HC06\r
+
+      \      \"minimumSpendMet\",\r
+
+      \      \"totalsNotCalculated\"//,\r
+
+      \      //\"valueTowardMinimumSpend\"   ## Causes issues with HC06\r
+
+      \    ],\r
+
+      \    properties: {\r
+
+      \      type:                         { type: \"string\"  },\r
+
+      \      allowPackagingInstructions:   { type: \"boolean\" },\r
+
+      \      allowShoppingBagsCollection:  { type: \"boolean\" },\r
+
+      \      allowShoppingBagsDelivery:    { type: \"boolean\" },\r
+
+      \      appliedOrderPromotions:       { type: \"array\"   },\r
+
+      \      appliedProductPromotions:     { type: \"array\"   },\r
+
+      \      autoAssigned:                 { type: \"boolean\" },\r
+
+      \r
+
+      \      baseStore: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: false,\r
+
+      \        required: [\"displayName\", \"name\", \"uid\"],\r
+
+      \        properties: {\r
+
+      \          displayName: { type: \"string\" },\r
+
+      \          name:        { type: \"string\" },\r
+
+      \          uid:         { type: \"string\" }\r
+
+      \        }\r
+
+      \      },\r
+
+      \r
+
+      \      cartSizeEnabled: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: false,\r
+
+      \        required: [\r
+
+      \          \"maximumDeliveryItemsQuantity\",\r
+
+      \          \"maximumDeliveryItemsQuantityExceeded\",\r
+
+      \          \"warningDeliveryItemsExceeded\",\r
+
+      \          \"warningDeliveryItemsQuantity\"\r
+
+      \        ],\r
+
+      \        properties: {\r
+
+      \          maximumDeliveryItemsQuantity:         { type: \"integer\" },\r
+
+      \          maximumDeliveryItemsQuantityExceeded: { type: \"boolean\" },\r
+
+      \          warningDeliveryItemsExceeded:         { type: \"boolean\" },\r
+
+      \          warningDeliveryItemsQuantity:         { type: \"integer\" }\r
+
+      \        }\r
+
+      \      },\r
+
+      \r
+
+      \      code: { type: \"string\" },\r
+
+      \r
+
+      \      deliveryAddress: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: true\r
+
+      \      },\r
+
+      \r
+
+      \      deliveryInstructions: { type: \"string\" },\r
+
+      \r
+
+      \      driverTip: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: true\r
+
+      \      },\r
+
+      \r
+
+      \      entries:         { type: \"array\" },\r
+
+      \      farAwayRadius:   { type: \"number\" },\r
+
+      \r
+
+      \      fulfilmentOption: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: true\r
+
+      \      },\r
+
+      \r
+
+      \      guid:           { type: \"string\" },\r
+
+      \      mobileNumber:   { type: \"string\" },\r
+
+      \      orderFlowVersion:{ type: \"string\" },\r
+
+      \r
+
+      \      pointOfService: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: true\r
+
+      \      },\r
+
+      \r
+
+      \      shoppingBagPreference: { type: \"boolean\" },\r
+
+      \r
+
+      \      summary: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: true\r
+
+      \      },\r
+
+      \r
+
+      \      totalCouponSavings: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: false,\r
+
+      \        required: [\"currencyIso\", \"formattedValue\", \"value\"],\r
+
+      \        properties: {\r
+
+      \          currencyIso:    { type: \"string\" },\r
+
+      \          formattedValue:{ type: \"string\" },\r
+
+      \          value:          { type: \"number\" }\r
+
+      \        }\r
+
+      \      },\r
+
+      \r
+
+      \      totalItems: { type: \"integer\" },\r
+
+      \r
+
+      \      totalPrice: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: false,\r
+
+      \        required: [\"currencyIso\", \"value\"],\r
+
+      \        properties: {\r
+
+      \          currencyIso: { type: \"string\" },\r
+
+      \          value:       { type: \"number\" }\r
+
+      \        }\r
+
+      \      },\r
+
+      \r
+
+      \      totalPriceWithTax: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: false,\r
+
+      \        required: [\"currencyIso\", \"value\"],\r
+
+      \        properties: {\r
+
+      \          currencyIso: { type: \"string\" },\r
+
+      \          value:       { type: \"number\" }\r
+
+      \        }\r
+
+      \      },\r
+
+      \r
+
+      \      totalPriceWithTolerances: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: true\r
+
+      \      },\r
+
+      \r
+
+      \      totalSavings: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: true\r
+
+      \      },\r
+
+      \r
+
+      \      totalSavingsExcludingCoupons: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: true\r
+
+      \      },\r
+
+      \r
+
+      \      totalTolerance: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: true\r
+
+      \      },\r
+
+      \r
+
+      \      walletPaymentExlplainerInfo: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: false,\r
+
+      \        required: [\"walletInfoSubText\", \"walletInfoTitle\"],\r
+
+      \        properties: {\r
+
+      \          walletInfoSubText: { type: \"string\" },\r
+
+      \          walletInfoTitle:   { type: \"string\" }\r
+
+      \        }\r
+
+      \      },\r
+
+      \r
+
+      \      allowDeliveryInstructions:     { type: \"boolean\" },\r
+
+      \      bulkOperationInProgress:       { type: \"boolean\" },\r
+
+      \      customerSelectedPointOfService:{ type: \"boolean\" },\r
+
+      \r
+
+      \      minimumSpend: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: false,\r
+
+      \        required: [\"currencyIso\", \"formattedValue\", \"value\"],\r
+
+      \        properties: {\r
+
+      \          currencyIso:     { type: \"string\" },\r
+
+      \          formattedValue: { type: \"string\" },\r
+
+      \          value:          { type: \"number\" }\r
+
+      \        }\r
+
+      \      },\r
+
+      \r
+
+      \      minimumSpendMet:      { type: \"boolean\" },\r
+
+      \      totalsNotCalculated: { type: \"boolean\" },\r
+
+      \r
+
+      \      valueTowardMinimumSpend: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: false,\r
+
+      \        required: [\"currencyIso\", \"formattedValue\", \"value\"],\r
+
+      \        properties: {\r
+
+      \          currencyIso:     { type: \"string\" },\r
+
+      \          formattedValue: { type: \"string\" },\r
+
+      \          value:          { type: \"number\" }\r
+
+      \        }\r
+
+      \      }\r
+
+      \    }\r
+
+      \  })\r
+
+      );\r
+
+      \r
+
+      \r
+
+      // ===============================\r
+
+      // ✅ Get Delivery Addresses Schema\r
+
+      // ===============================\r
+
+      pm.globals.set(\r
+
+      \  \"getAddressesSchema\",\r
+
+      \  JSON.stringify({\r
+
+      \    type: \"object\",\r
+
+      \    additionalProperties: false,\r
+
+      \    required: [\"addresses\"],\r
+
+      \    properties: {\r
+
+      \      addresses: {\r
+
+      \        type: \"array\",\r
+
+      \        items: {\r
+
+      \          type: \"object\",\r
+
+      \          additionalProperties: false,\r
+
+      \          required: [\r
+
+      \            \"country\",\r
+
+      \            \"defaultAddress\",\r
+
+      \            \"district\",\r
+
+      \            \"formattedAddress\",\r
+
+      \            \"fulfilmentType\",\r
+
+      \            \"id\",\r
+
+      \            \"latitude\",\r
+
+      \            \"line1\",\r
+
+      \            \"line2\",\r
+
+      \            \"longitude\",\r
+
+      \            \"postalCode\",\r
+
+      \            \"serviceable\",\r
+
+      \            \"streetname\",\r
+
+      \            \"streetnumber\",\r
+
+      \            \"summaryDisplay\",\r
+
+      \            \"town\"\r
+
+      \          ],\r
+
+      \          properties: {\r
+
+      \            cellNumber:            { type: \"string\"  },\r
+
+      \r
+
+      \            country: {\r
+
+      \              type: \"object\",\r
+
+      \              additionalProperties: false,\r
+
+      \              required: [\"isocode\"],\r
+
+      \              properties: {\r
+
+      \                isocode: { type: \"string\" }\r
+
+      \              }\r
+
+      \            },\r
+
+      \r
+
+      \            defaultAddress:        { type: \"boolean\" },\r
+
+      \            deliveryInstructions:  { type: \"string\"  },\r
+
+      \            district:              { type: \"string\"  },\r
+
+      \            formattedAddress:      { type: \"string\"  },\r
+
+      \            fulfilmentType:        { type: \"string\"  },\r
+
+      \            id:                    { type: \"string\"  },\r
+
+      \            latitude:              { type: \"number\"  },\r
+
+      \            line1:                 { type: \"string\"  },\r
+
+      \            line2:                 { type: \"string\"  },\r
+
+      \            longitude:             { type: \"number\"  },\r
+
+      \            postalCode:            { type: \"string\"  },\r
+
+      \            serviceable:           { type: \"boolean\" },\r
+
+      \            streetname:            { type: \"string\"  },\r
+
+      \            streetnumber:          { type: \"string\"  },\r
+
+      \            summaryDisplay:        { type: \"string\"  },\r
+
+      \            town:                  { type: \"string\"  }\r
+
+      \          }\r
+
+      \        }\r
+
+      \      }\r
+
+      \    }\r
+
+      \  })\r
+
+      );\r
+
+      \r
+
+      \r
+
+      // ===============================\r
+
+      // ✅ Shared Schema Assertion\r
+
+      // ===============================\r
+
+      pm.globals.set(\"assertJsonSchema\", `\r
+
+      (function (schema, schemaName = \"Response schema\") {\r
+
+      \    pm.test(\\`\\${schemaName} is valid\\`, () => {\r
+
+      \        pm.response.to.have.jsonSchema(schema);\r
+
+      \    });\r
+
+      })\r
+
+      `);\r
+
+      ``"
+    language: text/javascript
+order: 1000

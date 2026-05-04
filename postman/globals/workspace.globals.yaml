@@ -1,2 +1,23 @@
 name: Globals
-values: []
+values:
+  - key: assertStatus
+    value: ''
+    enabled: true
+  - key: loginSchema
+    value: ''
+    enabled: true
+  - key: loginOTPSchema
+    value: ''
+    enabled: true
+  - key: loginWithOTPSchema
+    value: ''
+    enabled: true
+  - key: createCartSchema
+    value: ''
+    enabled: true
+  - key: getAddressesSchema
+    value: ''
+    enabled: true
+  - key: assertJsonSchema
+    value: ''
+    enabled: true

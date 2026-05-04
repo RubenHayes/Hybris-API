@@ -1,0 +1,312 @@
+$kind: http-request
+url: "{{pnpOne}}/users/current/carts/{{cart}}/paymentInfos?paymentMode=PAY_BY_CARD"
+method: GET
+queryParams:
+  paymentMode: PAY_BY_CARD
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: GET /users/current/carts/{{cart}}/paymentInfos?paymentMode=PAY_BY_CARD\r
+
+      // Purpose: Retrieves payment information for the selected payment mode (Pay By Card)\r
+
+      // Auth: Bearer Token {{accessToken}}\r
+
+      // Expected status: 200 OK\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Test Configuration ~~ 🧩\r
+
+      var runBaselineTests   = pm.collectionVariables.get(\"runBaselineTests\");    // Set to false to skip baseline tests\r
+
+      var runFunctionalTests = pm.collectionVariables.get(\"runFunctionalTests\");  // Set to false to skip functional tests \r
+
+      var environmentFlag    = pm.environment.name;                               // Get the current environment name\r
+
+      \r
+
+      // 🧩 ~~ Strict Schema Toggle ~~ 🧩\r
+
+      // Uncomment the line below to force strict validation ON for this request only\r
+
+      // var strictSchemaValidation = true;\r
+
+      \r
+
+      // Use collection variable (default behavior) - comment this out if you want to override the collection variable value\r
+
+      var strictSchemaValidationRaw = pm.collectionVariables.get(\"strictSchemaValidation\");\r
+
+      var strictSchemaValidation    =\r
+
+      \    strictSchemaValidationRaw === true || strictSchemaValidationRaw === \"true\";\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      pm.test(\"[Payment Info Controller] Pay By Card Info - Status code is 200\", () => {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"[Payment Info Controller] Pay By Card Info - Response status is OK\", () => {\r
+
+      \    pm.expect(pm.response.status).to.eq(\"OK\");\r
+
+      });\r
+
+      \r
+
+      // Conditional check for further testing\r
+
+      if (pm.response.code === 200) {\r
+
+      \r
+
+      \    // 🧩 ~~ Variable Declarations ~~ 🧩\r
+
+      \    var jsonData       = pm.response.json();\r
+
+      \    var paymentInfos   = Array.isArray(jsonData) ? jsonData : [];\r
+
+      \    var firstCard      = jsonData[0];\r
+
+      \    var paymentInfo    = firstCard.paymentInfo;\r
+
+      \r
+
+      \    // Persist useful values for downstream requests\r
+
+      \    pm.collectionVariables.set('card', paymentInfo.id);\r
+
+      \    pm.collectionVariables.set('paymentId', paymentInfo.code);\r
+
+      \r
+
+      \    if (runBaselineTests) {\r
+
+      \r
+
+      \        // 🧩 ~~ Schema Definition ~~ 🧩\r
+
+      \        const responseSchema = {\r
+
+      \            type: \"array\",\r
+
+      \            items: {\r
+
+      \                type: \"object\",\r
+
+      \                additionalProperties: !strictSchemaValidation,\r
+
+      \                required: [\r
+
+      \                    \"notTransactable\",\r
+
+      \                    \"paymentInfo\"\r
+
+      \                ],\r
+
+      \                properties: {\r
+
+      \                    notTransactable:        { type: \"boolean\" },\r
+
+      \                    notTransactableReason:  { type: [\"string\", \"null\"] },\r
+
+      \                    paymentInfo: {\r
+
+      \                        type: \"object\",\r
+
+      \                        additionalProperties: !strictSchemaValidation,\r
+
+      \                        required: [\r
+
+      \                            \"cardAccountNumber\",\r
+
+      \                            \"cardCardType\",\r
+
+      \                            \"cardExpirationMonth\",\r
+
+      \                            \"cardExpirationYear\",\r
+
+      \                            \"cardAccountHolderName\",\r
+
+      \                            \"creditCardTypeName\",\r
+
+      \                            \"id\",\r
+
+      \                            \"code\",\r
+
+      \                            \"defaultCard\",\r
+
+      \                            \"saved\"\r
+
+      \                        ],\r
+
+      \                        properties: {\r
+
+      \                            cardAccountNumber:              { type: [\"string\", \"null\"] },\r
+
+      \                            cardCardType:                   { type: [\"string\", \"null\"] },\r
+
+      \                            cardCvNumber:                   { type: [\"string\", \"null\"] },\r
+
+      \                            cardExpirationMonth:            { type: [\"number\", \"null\"] },\r
+
+      \                            cardExpirationYear:             { type: [\"number\", \"null\"] },\r
+
+      \                            cardIssueNumber:                { type: [\"string\", \"null\"] },\r
+
+      \                            cardStartMonth:                 { type: [\"string\", \"null\"] },\r
+
+      \                            cardStartYear:                  { type: [\"string\", \"null\"] },\r
+
+      \                            paymentOption:                  { type: [\"string\", \"null\"] },\r
+
+      \                            cardAccountHolderName:          { type: \"string\" },\r
+
+      \                            cardExpirationDisplay:          { type: [\"string\", \"null\"] },\r
+
+      \                            creditCardTypeName:             { type: \"string\" },\r
+
+      \                            id:                             { type: \"string\" },\r
+
+      \                            cardAccountNumberMasked:        { type: [\"string\", \"null\"] },\r
+
+      \                            cardExpired:                    { type: [\"boolean\", \"null\"] },\r
+
+      \                            cardExpiredOnFulfilmentDate:    { type: [\"boolean\", \"null\"] },\r
+
+      \                            token:                          { type: [\"string\", \"null\"] },\r
+
+      \                            code:                           { type: \"string\" },\r
+
+      \                            defaultCard:                    { type: \"boolean\" },\r
+
+      \                            paymentType:                    { type: [\"string\", \"null\"] },\r
+
+      \                            displayPaymentType:             { type: [\"string\", \"null\"] },\r
+
+      \                            displayMaskedCardNumber:        { type: [\"string\", \"null\"] },\r
+
+      \                            cardType:                       { type: [\"string\", \"null\"] },\r
+
+      \                            issuer:                         { type: [\"string\", \"null\"] },\r
+
+      \                            level:                          { type: [\"string\", \"null\"] },\r
+
+      \                            countryCode:                    { type: [\"string\", \"null\"] },\r
+
+      \                            binNumber:                      { type: [\"string\", \"null\"] },\r
+
+      \                            last4Digits:                    { type: [\"string\", \"null\"] },\r
+
+      \                            saved:                          { type: \"boolean\" },\r
+
+      \                            verified:                       { type: [\"boolean\", \"null\"] },\r
+
+      \                            vendor:                         { type: [\"string\", \"null\"] },\r
+
+      \                            icon:                           { type: [\"object\", \"null\"] }\r
+
+      \                        }\r
+
+      \                    }\r
+
+      \                }\r
+
+      \            }\r
+
+      \        };\r
+
+      \r
+
+      \        // 🧩 ~~ Schema Validation Test ~~ 🧩\r
+
+      \        pm.test(\"[Payment Info Controller] Pay By Card Info - Response matches schema\", () => {\r
+
+      \            pm.response.to.have.jsonSchema(responseSchema);\r
+
+      \        });\r
+
+      \    }\r
+
+      \r
+
+      \    // 🧩 ~~ Functional Tests ~~ 🧩\r
+
+      \    if (runFunctionalTests) {\r
+
+      \r
+
+      \        // --- Complementary Functional Tests ---\r
+
+      \        pm.test(\"[Payment Info Controller] Pay By Card Info - paymentInfos list is not empty\", () => {\r
+
+      \            pm.expect(paymentInfos.length).to.be.greaterThan(0);\r
+
+      \        });\r
+
+      \r
+
+      \        // --- Business Rule Functional Tests ---\r
+
+      \        pm.test(\"[Payment Info Controller] Pay By Card Info - at least one card is transactable\", () => {\r
+
+      \            const hasTransactable = paymentInfos.some(p => p.notTransactable === false);\r
+
+      \            pm.expect(hasTransactable).to.be.true;\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Payment Info Controller] Pay Buy Card Info - 'defaultCard' is true\", () => {\r
+
+      \            pm.expect(paymentInfo.defaultCard).to.be.true;\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Payment Info Controller] Pay Buy Card Info - 'saved' is true\", () => {\r
+
+      \            pm.expect(paymentInfo.saved).to.be.true;\r
+
+      \        });\r
+
+      \    }\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      }\r
+
+      else {\r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(`Response Code - ${pm.response.code}`);\r
+
+      \    console.log(pm.response.text());\r
+
+      }"
+    language: text/javascript
+order: 21000
