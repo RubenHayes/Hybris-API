@@ -1,4 +1,5 @@
 $kind: http-request
+name: Validate Cart Entries (Product Availability)
 url: "{{pnpOne}}/users/current/carts/{{cart}}/validation"
 method: PUT
 headers:
@@ -12,8 +13,6 @@ scripts:
     code: "// ===========================================\r
 
       // Request: PUT /users/current/carts/{{cart}}/validation\r
-
-      // Purpose: Validate that products in cart are still available\r
 
       // Auth: Bearer token {{accessToken}}\r
 

@@ -1,4 +1,5 @@
 $kind: http-request
+name: Set Purchase Order Number
 url: "{{pnpOne}}/users/current/carts/{{cart}}/purchaseorder"
 method: PUT
 headers:
@@ -19,35 +20,17 @@ scripts:
 
       // Purpose: Add Purchase Order Number to Cart\r
 
-      // Auth: Bearer token {{accessToken}}\r
-
       // Expected status: 200 OK\r
 
       // ===========================================\r
 
       \r
 
-      // 🧩 ~~ Test Configuration ~~ 🧩\r
-
-      var environmentFlag = pm.environment.name; // Get the current environment name\r
-
-      \r
-
       // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
 
-      pm.test(\"[Carts Controller] Set Purchase Order Number - Status code is 200\", () => {\r
+      const assertStatus = eval(pm.globals.get(\"assertStatus\"));\r
 
-      \    pm.response.to.have.status(200);\r
-
-      });\r
-
-      \r
-
-      pm.test(\"[Carts Controller] Set Purchase Order Number - Response status is OK\", () => {\r
-
-      \    pm.expect(pm.response.status).to.eql(\"OK\");\r
-
-      });\r
+      assertStatus(200, \"OK\");\r
 
       \r
 
@@ -57,7 +40,7 @@ scripts:
 
       \r
 
-      \    // No jsonData needed — Hybris returns no body for Set Purchase Order Number\r
+      \    // No jsonData needed — Hybris returns no body for Set Delivery Address\r
 
       \r
 
