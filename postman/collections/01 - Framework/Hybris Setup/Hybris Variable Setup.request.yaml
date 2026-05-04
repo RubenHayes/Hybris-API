@@ -13,6 +13,6 @@ auth:
   type: noauth
 scripts:
   - type: beforeRequest
-    code: //Test
+    code: //Test Comment
     language: text/javascript
 order: 1000
