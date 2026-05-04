@@ -1,0 +1,89 @@
+$kind: http-request
+url: "{{pnpOne}}/users/current/carts/{{cart}}/paymentintentions"
+method: POST
+headers:
+  origin: "{{oneOriginHeader}}"
+body:
+  type: json
+  content: "{\r
+
+    \    \"paymentMode\": \"PAY_BY_CARD\",\r
+
+    \    \"paymentInfoId\": \"{{paymentId}}\",\r
+
+    \    \"amount\": {{totalPrice}}\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: POST /users/current/carts/{{cart}}/paymentintentions\r
+
+      // Purpose: Generate a payment intention for the current cart\r
+
+      // Auth: Bearer token {{accessToken}}\r
+
+      // Expected status: 201 Created\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Test Configuration ~~ 🧩\r
+
+      var environmentFlag = pm.environment.name; // Get the current environment name\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      pm.test(\"[Payment Plan Controller] Create Payment Intention - Status code is 201\", () => {\r
+
+      \    pm.response.to.have.status(201);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"[Payment Plan Controller] Create Payment Intention - Response status is Created\", () => {\r
+
+      \    pm.expect(pm.response.status).to.eql(\"Created\");\r
+
+      });\r
+
+      \r
+
+      // Conditional block\r
+
+      if (pm.response.code === 200) {\r
+
+      \r
+
+      \    // No jsonData needed — Hybris returns no body for Add Delivery Instructions\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      \r
+
+      } else {\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(pm.response.text());\r
+
+      }"
+    language: text/javascript
+order: 22000

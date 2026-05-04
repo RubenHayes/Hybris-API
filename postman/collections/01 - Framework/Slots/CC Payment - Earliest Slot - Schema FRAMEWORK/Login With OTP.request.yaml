@@ -1,0 +1,133 @@
+$kind: http-request
+url: "{{grocLogin}}"
+method: POST
+headers:
+  Accept: "*/*"
+  Content-Type: application/x-www-form-urlencoded
+  Authorization: "{{oneLoginWithOtpAuth}}"
+body:
+  type: text
+  content: "{{one1Login}}"
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: POST {{environment}}/token\r
+
+      // Purpose: Generates {{accessToken}} based on username and password\r
+
+      // Expected status: 200 OK + accessToken\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      const assertStatus = eval(pm.globals.get(\"assertStatus\"));\r
+
+      assertStatus(200, \"OK\");\r
+
+      \r
+
+      // 🧩 ~~ Schema Validation ~~ 🧩\r
+
+      const assertJsonSchema  = eval(pm.globals.get(\"assertJsonSchema\"));\r
+
+      const loginWithOTPSchema    = JSON.parse(pm.globals.get(\"loginWithOTPSchema\"));\r
+
+      assertJsonSchema(loginWithOTPSchema, \"Login with OTP response schema\");\r
+
+      \r
+
+      // Conditional check for further testing\r
+
+      if (pm.response.code === 200) {\r
+
+      \r
+
+      \    // 🧩 ~~ Variable Declarations ~~ 🧩\r
+
+      \    var jsonData          = pm.response.json();\r
+
+      \    var accessTokenValue  = jsonData.access_token;\r
+
+      \    var tokenType         = jsonData.token_type;\r
+
+      \    var refreshTokenValue = jsonData.refresh_token;\r
+
+      \    var expiresIn         = jsonData.expires_in;\r
+
+      \    var scopeValue        = jsonData.scope;\r
+
+      \    var idTokenValue      = jsonData.id_token;\r
+
+      \    var deviceTokenValue  = jsonData.device_token;\r
+
+      \r
+
+      \    // 🧩 ~~ Collection Variable Declarations ~~ 🧩\r
+
+      \    pm.collectionVariables.set(\"accessToken\", accessTokenValue);    \r
+
+      \r
+
+      \    // 🧩 ~~ Functional Tests ~~ 🧩\r
+
+      \    pm.test(\"accessToken is not empty\", () => {\r
+
+      \        pm.expect(accessTokenValue.length).to.be.greaterThan(0);\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"tokenType is 'Bearer'\", () => {\r
+
+      \        pm.expect(tokenType).to.eq(\"Bearer\");\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"expiresIn is greater than 0\", () => {\r
+
+      \        pm.expect(expiresIn).to.be.greaterThan(0);\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"scope contains 'openid'\", () => {\r
+
+      \        pm.expect(scopeValue).to.include(\"openid\");\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"scope contains 'offline_access'\", () => {\r
+
+      \        pm.expect(scopeValue).to.include(\"offline_access\");\r
+
+      \    });\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      } else {\r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(`Response Code - ${pm.response.code}`);\r
+
+      \    console.log(pm.response.text());\r
+
+      }"
+    language: text/javascript
+order: 3000

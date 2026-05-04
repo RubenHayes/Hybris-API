@@ -1,0 +1,81 @@
+$kind: http-request
+url: "{{pnpOne}}/users/current/carts/{{cart}}/deliveryinstructions"
+method: PUT
+headers:
+  Origin: "{{oneOriginHeader}}"
+body:
+  type: json
+  content: '{"cellNumber":"+27719632792","deliveryInstructions":"I want it delivered today asap\n","shoppingBagPreference":false}'
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: PUT /users/current/carts/{{cart}}/deliveryinstructions\r
+
+      // Purpose: Set Delivery Instructions for current cart\r
+
+      // Auth: Bearer token {{accessToken}}\r
+
+      // Expected status: 200 OK\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Test Configuration ~~ 🧩\r
+
+      var environmentFlag = pm.environment.name; // Get the current environment name\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      pm.test(\"[Carts Controller] Add Delivery Instructions - Status code is 200\", () => {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"[Carts Controller] Add Delivery Instructions - Response status is OK\", () => {\r
+
+      \    pm.expect(pm.response.status).to.eql(\"OK\");\r
+
+      });\r
+
+      \r
+
+      // Conditional block\r
+
+      if (pm.response.code === 200) {\r
+
+      \r
+
+      \    // No jsonData needed — Hybris returns no body for Add Delivery Instructions\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      \r
+
+      } else {\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(pm.response.text());\r
+
+      }"
+    language: text/javascript
+order: 16000

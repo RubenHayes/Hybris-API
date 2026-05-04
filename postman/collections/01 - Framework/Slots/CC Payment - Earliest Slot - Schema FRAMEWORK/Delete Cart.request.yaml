@@ -1,0 +1,80 @@
+$kind: http-request
+url: "{{pnpOne}}/users/current/carts/{{cart}}"
+method: DELETE
+headers:
+  - key: origin
+    value: "{{groceriesOriginHeader}}"
+  - key: referer
+    value: https://hyb.dev.pnpapi.co.za/
+    disabled: true
+  - key: accept
+    value: application/json, text/plain, */*
+    disabled: true
+  - key: content-type
+    value: application/json
+    disabled: true
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: DEL /users/current/carts/{{cart}}\r
+
+      // Purpose: Delete stale cart. Prevents payment intention issues if previous scenario failed.\r
+
+      // Expected status: 200 OK\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      const assertStatus = eval(pm.globals.get(\"assertStatus\"));\r
+
+      assertStatus(200, \"OK\");\r
+
+      \r
+
+      // Conditional block\r
+
+      if (pm.response.code === 200) {\r
+
+      \r
+
+      \    // No jsonData needed — Hybris returns no body for Delete Cart\r
+
+      \r
+
+      \    // Logging / confirmation\r
+
+      \    var cartId = pm.collectionVariables.get(\"cart\");\r
+
+      \    console.log(`Stale cart deleted successfully: ${cartId}`);\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      \r
+
+      } else {\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(`Response Code - ${pm.response.code}`);\r
+
+      \    console.log(pm.response.text());\r
+
+      }"
+    language: text/javascript
+order: 5000

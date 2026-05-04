@@ -1,0 +1,246 @@
+$kind: http-request
+url: "{{pnpOne}}/users/current/carts/{{cart}}/paymentmodes"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: POST /users/current/carts/{{cart}}/paymentmodes\r
+
+      // Purpose: Retrieves available payment modes for the current cart\r
+
+      // Auth: Bearer Token {{accessToken}}\r
+
+      // Expected status: 200 OK\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Test Configuration ~~ 🧩\r
+
+      var runBaselineTests   = pm.collectionVariables.get(\"runBaselineTests\");    // Set to false to skip baseline tests\r
+
+      var runFunctionalTests = pm.collectionVariables.get(\"runFunctionalTests\");  // Set to false to skip functional tests \r
+
+      var environmentFlag    = pm.environment.name;                               // Get the current environment name\r
+
+      \r
+
+      // 🧩 ~~ Strict Schema Toggle ~~ 🧩\r
+
+      // Uncomment the line below to force strict validation ON for this request only\r
+
+      // var strictSchemaValidation = true;\r
+
+      \r
+
+      // Use collection variable (default behavior) - comment this out if you want to override the collection variable value\r
+
+      var strictSchemaValidationRaw = pm.collectionVariables.get(\"strictSchemaValidation\");\r
+
+      var strictSchemaValidation    =\r
+
+      \    strictSchemaValidationRaw === true || strictSchemaValidationRaw === \"true\";\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      pm.test(\"[Carts Controller] Get Payment Modes - Status code is 200\", () => {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"[Carts Controller] Get Payment Modes - Response status is OK\", () => {\r
+
+      \    pm.expect(pm.response.status).to.eq(\"OK\");\r
+
+      });\r
+
+      \r
+
+      // Conditional check for further testing\r
+
+      if (pm.response.code === 200) {\r
+
+      \r
+
+      \    // 🧩 ~~ Variable Declarations ~~ 🧩\r
+
+      \    var jsonData     = pm.response.json();\r
+
+      \    var paymentModes = jsonData.paymentModes || [];\r
+
+      \r
+
+      \    if (runBaselineTests) {\r
+
+      \r
+
+      \        // 🧩 ~~ Schema Definition ~~ 🧩\r
+
+      \        const responseSchema = {\r
+
+      \            type: \"object\",\r
+
+      \            additionalProperties: !strictSchemaValidation,\r
+
+      \            required: [\"paymentModes\"],\r
+
+      \            properties: {\r
+
+      \                paymentModes: {\r
+
+      \                    type: \"array\",\r
+
+      \                    items: {\r
+
+      \                        type: \"object\",\r
+
+      \                        additionalProperties: !strictSchemaValidation,\r
+
+      \                        required: [\r
+
+      \                            \"alwaysDisplayPaymentMethod\",\r
+
+      \                            \"code\",\r
+
+      \                            \"description\",\r
+
+      \                            \"displayAddNewPaymentMethod\",\r
+
+      \                            \"name\",\r
+
+      \                            \"partPaymentAllowed\",\r
+
+      \                            \"partPaymentModesAllowed\"\r
+
+      \                        ],\r
+
+      \                        properties: {\r
+
+      \                            alwaysDisplayPaymentMethod:    { type: \"boolean\" },\r
+
+      \                            code:                          { type: \"string\" },\r
+
+      \                            description:                   { type: \"string\" },\r
+
+      \                            displayAddNewPaymentMethod:    { type: \"boolean\" },\r
+
+      \                            name:                          { type: \"string\" },\r
+
+      \                            partPaymentAllowed:            { type: \"boolean\" },\r
+
+      \                            partPaymentModesAllowed: {\r
+
+      \                                type: \"array\",\r
+
+      \                                items: {\r
+
+      \                                    type: \"object\",\r
+
+      \                                    additionalProperties: !strictSchemaValidation,\r
+
+      \                                    required: [\"code\"],\r
+
+      \                                    properties: {\r
+
+      \                                        code: { type: \"string\" }\r
+
+      \                                    }\r
+
+      \                                }\r
+
+      \                            }\r
+
+      \                        }\r
+
+      \                    }\r
+
+      \                }\r
+
+      \            }\r
+
+      \        };\r
+
+      \r
+
+      \        // 🧩 ~~ Schema Validation Test ~~ 🧩\r
+
+      \        pm.test(\"[Carts Controller] Get Payment Modes - Response matches schema\", () => {\r
+
+      \            pm.response.to.have.jsonSchema(responseSchema);\r
+
+      \        });\r
+
+      \    }\r
+
+      \r
+
+      \    // 🧩 ~~ Functional Tests ~~ 🧩\r
+
+      \    if (runFunctionalTests) {\r
+
+      \r
+
+      \        // --- Complementary Functional Tests ---\r
+
+      \        pm.test(\"[Carts Controller] Get Payment Modes - paymentModes list is not empty\", () => {\r
+
+      \            pm.expect(paymentModes.length).to.be.greaterThan(0);\r
+
+      \        });\r
+
+      \r
+
+      \        // --- Business Rule Functional Tests ---\r
+
+      \        pm.test(\"[Carts Controller] Get Payment Modes - PAY_BY_CARD option is returned\", () => {\r
+
+      \            const hasPayByCard = paymentModes.some(x => x.code === \"PAY_BY_CARD\");\r
+
+      \            pm.expect(hasPayByCard).to.be.true;\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Carts Controller] Get Payment Modes - SMART_SHOPPER option is returned\", () => {\r
+
+      \            const hasSmartShopper = paymentModes.some(x => x.code === \"SMART_SHOPPER\");\r
+
+      \            pm.expect(hasSmartShopper).to.be.true;\r
+
+      \        });\r
+
+      \    }\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      } \r
+
+      else {\r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(`Response Code - ${pm.response.code}`);\r
+
+      \    console.log(pm.response.text());\r
+
+      }"
+    language: text/javascript
+order: 20000

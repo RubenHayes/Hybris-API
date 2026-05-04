@@ -1,0 +1,101 @@
+$kind: http-request
+url: "{{pnpOne}}/users/current/carts/{{cart}}/paymentdetails"
+method: PUT
+headers:
+  origin: "{{oneOriginHeader}}"
+body:
+  type: json
+  content: "[\r
+
+    \    {\r
+
+    \        \"code\": {{card}},\r
+
+    \        \"amount\": {\r
+
+    \            \"currencyIso\": \"ZAR\",\r
+
+    \            \"formattedValue\": \"R43.99\",\r
+
+    \            \"value\": {{totalPrice}}\r
+
+    \        },\r
+
+    \        \"paymentMode\": \"PAY_BY_CARD\"\r
+
+    \    }\r
+
+    ]"
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: PUT /users/current/carts/{{cart}}/paymentdetails\r
+
+      // Purpose: Set Payment Details for current cart.\r
+
+      // Auth: Bearer token {{accessToken}}\r
+
+      // Expected status: 200 OK\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Test Configuration ~~ 🧩\r
+
+      var environmentFlag = pm.environment.name; // Get the current environment name\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      pm.test(\"[Carts Controller] Set Payment Details For Cart - Status code is 200\", () => {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"[Carts Controller] Set Payment Details For Cart - Response status is OK\", () => {\r
+
+      \    pm.expect(pm.response.status).to.eql(\"OK\");\r
+
+      });\r
+
+      \r
+
+      // Conditional block\r
+
+      if (pm.response.code === 200) {\r
+
+      \r
+
+      \    // No jsonData needed — Hybris returns no body for Set Payment Details For Cart\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      \r
+
+      } else {\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(pm.response.text());\r
+
+      }"
+    language: text/javascript
+order: 25000

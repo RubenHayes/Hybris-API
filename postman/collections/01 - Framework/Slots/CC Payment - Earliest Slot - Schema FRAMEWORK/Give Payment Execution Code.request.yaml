@@ -1,0 +1,303 @@
+$kind: http-request
+url: "{{pnpOne}}/users/current/carts/{{cart}}/paymentplan/executions/{{paymentExecutionCode}}?fields=FULL"
+method: PUT
+queryParams:
+  fields: FULL
+body:
+  type: json
+  content: "{\r\n    \"phase\": \"CHECKOUT\"\r\n}"
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: PUT /users/current/carts/{{cart}}/paymentplan/executions/{{paymentExecutionCode}}\r
+
+      // Purpose: Provide the payment execution code for this cart and confirm the execution details are correct\r
+
+      // Auth: Bearer Token {{accessToken}}\r
+
+      // Expected status: 201 Created\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Test Configuration ~~ 🧩\r
+
+      var runBaselineTests   = pm.collectionVariables.get(\"runBaselineTests\");    // Set to false to skip baseline tests\r
+
+      var runFunctionalTests = pm.collectionVariables.get(\"runFunctionalTests\");  // Set to false to skip functional tests \r
+
+      var environmentFlag    = pm.environment.name;                               // Get the current environment name\r
+
+      \r
+
+      // 🧩 ~~ Strict Schema Toggle ~~ 🧩\r
+
+      // Uncomment the line below to force strict validation ON for this request only\r
+
+      var strictSchemaValidation = true;\r
+
+      \r
+
+      // Use collection variable (default behavior) - comment this out if you want to override the collection variable value\r
+
+      //var strictSchemaValidationRaw = pm.collectionVariables.get(\"strictSchemaValidation\");\r
+
+      //var strictSchemaValidation    =\r
+
+      //    strictSchemaValidationRaw === true || strictSchemaValidationRaw === \"true\";\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      pm.test(\"[Payment Plan Controller] Give Payment Execution Code - Status code is 201\", () => {\r
+
+      \    pm.response.to.have.status(201);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"[Payment Plan Controller] Give Payment Execution Code - Response status is Created\", () => {\r
+
+      \    pm.expect(pm.response.status).to.eq(\"Created\");\r
+
+      });\r
+
+      \r
+
+      // Conditional check for further testing\r
+
+      if (pm.response.code === 201) {\r
+
+      \r
+
+      \    // 🧩 ~~ Variable Declarations ~~ 🧩\r
+
+      \    var jsonData                = pm.response.json();\r
+
+      \    var executionAmount         = jsonData.amount;\r
+
+      \    var executionCode           = jsonData.code;\r
+
+      \    var paymentExecutionInfo    = jsonData.paymentExecutionInfo || {};\r
+
+      \    var totalPrice              = Number(pm.collectionVariables.get(\"totalPrice\"));\r
+
+      \    var expectedExecutionCode   = pm.collectionVariables.get(\"paymentExecutionCode\");\r
+
+      \r
+
+      \    if (runBaselineTests) {\r
+
+      \r
+
+      \        // 🧩 ~~ Schema Definition ~~ 🧩\r
+
+      \        const responseSchema = {\r
+
+      \            type: \"object\",\r
+
+      \            additionalProperties: !strictSchemaValidation,\r
+
+      \            required: [\r
+
+      \                \"amount\",\r
+
+      \                \"code\",\r
+
+      \                \"paymentExecutionInfo\",\r
+
+      \                \"paymentProvider\",\r
+
+      \                \"phase\",\r
+
+      \                \"reference\",\r
+
+      \                \"status\",\r
+
+      \                \"type\"\r
+
+      \            ],\r
+
+      \            properties: {\r
+
+      \                amount: { type: \"number\" },\r
+
+      \                code:   { type: \"string\" },\r
+
+      \                paymentExecutionInfo: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\r
+
+      \                        \"type\",\r
+
+      \                        \"additionalInfo1\",\r
+
+      \                        \"additionalInfo2\",\r
+
+      \                        \"additionalInfo3\",\r
+
+      \                        \"additionalInfo4\",\r
+
+      \                        \"additionalInfo5\",\r
+
+      \                        \"is3ds\",\r
+
+      \                        \"reconciliationId\",\r
+
+      \                        \"traceId\",\r
+
+      \                        \"transactionId\"\r
+
+      \                    ],\r
+
+      \                    properties: {\r
+
+      \                        type:              { type: \"string\" },\r
+
+      \                        additionalInfo1:   { type: \"string\" },\r
+
+      \                        additionalInfo2:   { type: \"string\" },\r
+
+      \                        additionalInfo3:   { type: \"string\" },\r
+
+      \                        additionalInfo4:   { type: \"string\" },\r
+
+      \                        additionalInfo5:   { type: \"string\" },\r
+
+      \                        is3ds:             { type: \"string\" },\r
+
+      \                        reconciliationId:  { type: \"string\" },\r
+
+      \                        traceId:           { type: \"string\" },\r
+
+      \                        transactionId:     { type: \"string\" }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                paymentProvider:   { type: \"string\" },\r
+
+      \                phase:             { type: \"string\" },\r
+
+      \                reference:         { type: \"string\" },\r
+
+      \                status:            { type: \"string\" },\r
+
+      \                type:              { type: \"string\" }\r
+
+      \            }\r
+
+      \        };\r
+
+      \r
+
+      \        // 🧩 ~~ Schema Validation Test ~~ 🧩\r
+
+      \        pm.test(\"[Payment Plan Controller] Give Payment Execution Code - Response matches schema\", () => {\r
+
+      \            pm.response.to.have.jsonSchema(responseSchema);\r
+
+      \        });\r
+
+      \    }\r
+
+      \r
+
+      \    // 🧩 ~~ Functional Tests ~~ 🧩\r
+
+      \    if (runFunctionalTests) {\r
+
+      \r
+
+      \        // --- Business Rule Functional Tests ---\r
+
+      \        pm.test(\"[Payment Plan Controller] Give Payment Execution Code - Execution amount is correct\", () => {\r
+
+      \            pm.expect(executionAmount).to.eq(totalPrice);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Payment Plan Controller] Give Payment Execution Code - Execution code is correct\", () => {\r
+
+      \            pm.expect(executionCode).to.eq(expectedExecutionCode);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Payment Plan Controller] Give Payment Execution Code - PaymentExecutionInfo type is correct\", () => {\r
+
+      \            pm.expect(paymentExecutionInfo.type).to.eq(\"creditCardPaymentExecutionInfoWsDTO\");\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Payment Plan Controller] Give Payment Execution Code - PaymentProvider is PAYMENTSOS\", () => {\r
+
+      \            pm.expect(jsonData.paymentProvider).to.eq(\"PAYMENTSOS\");\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Payment Plan Controller] Give Payment Execution Code - Phase is CHECKOUT\", () => {\r
+
+      \            pm.expect(jsonData.phase).to.eq(\"CHECKOUT\");\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Payment Plan Controller] Give Payment Execution Code - Status is SUCCESS\", () => {\r
+
+      \            pm.expect(jsonData.status).to.eq(\"SUCCESS\");\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Payment Plan Controller] Give Payment Execution Code - Type is AUTHORIZATION\", () => {\r
+
+      \            pm.expect(jsonData.type).to.eq(\"AUTHORIZATION\");\r
+
+      \        });\r
+
+      \    }\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      }\r
+
+      else {\r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(`Response Code: ${pm.response.code}`);\r
+
+      \    console.log(pm.response.text());\r
+
+      }"
+    language: text/javascript
+order: 27000

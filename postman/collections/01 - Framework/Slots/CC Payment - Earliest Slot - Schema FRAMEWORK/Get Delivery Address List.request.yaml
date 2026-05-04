@@ -1,0 +1,136 @@
+$kind: http-request
+url: "{{pnpOne}}/users/current/addresses"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: GET /users/current/addresses\r
+
+      // Purpose: Retrieves the user's saved delivery address list | Place address id[0] in {{DeliveryAddress}}\r
+
+      // Expected status: 200 OK\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      const assertStatus = eval(pm.globals.get(\"assertStatus\"));\r
+
+      assertStatus(200, \"OK\");\r
+
+      \r
+
+      // 🧩 ~~ Schema Validation ~~ 🧩\r
+
+      const assertJsonSchema    = eval(pm.globals.get(\"assertJsonSchema\"));\r
+
+      const getAddressesSchema  = JSON.parse(pm.globals.get(\"getAddressesSchema\"));\r
+
+      assertJsonSchema(getAddressesSchema, \"Create Cart response schema\");\r
+
+      \r
+
+      // Conditional check for further testing\r
+
+      if (pm.response.code === 200) {\r
+
+      \r
+
+      \    // 🧩 ~~ Variable Declarations ~~ 🧩\r
+
+      \    var jsonData  = pm.response.json();\r
+
+      \    var addresses = jsonData.addresses || [];\r
+
+      \r
+
+      \    // 🧩 ~~ Collection Variable Declarations ~~ 🧩\r
+
+      \    if (addresses.length > 0) {\r
+
+      \        pm.collectionVariables.set(\"selectedDeliveryAddressId\", addresses[0].id);\r
+
+      \    }\r
+
+      \r
+
+      \    // 🧩 ~~ Functional Tests ~~ 🧩\r
+
+      \    // --- Complementary Functional Tests (schema-like expectations) ---\r
+
+      \    pm.test(\"Addresses array is not empty\", () => {\r
+
+      \        pm.expect(addresses.length).to.be.greaterThan(0);\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"First address id is valid\", () => {\r
+
+      \        pm.expect(addresses[0].id.length).to.be.greaterThan(0);\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"District is Claremont\", () => {\r
+
+      \        pm.expect(addresses[0].district).to.eq(\"Claremont\");\r
+
+      \    });\r
+
+      \r
+
+      \    // --- Business Rule Functional Tests ---\r
+
+      \    pm.test(\"First address is serviceable\", () => {\r
+
+      \        pm.expect(addresses[0].serviceable).to.eq(true);\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"FulfilmentType is DELIVERY\", () => {\r
+
+      \        pm.expect(addresses[0].fulfilmentType).to.eq(\"DELIVERY\");\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"DefaultAddress is true\", () => {\r
+
+      \        pm.expect(addresses[0].defaultAddress).to.eq(true);\r
+
+      \    });\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      \r
+
+      } else {\r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(`Response Code - ${pm.response.code}`);\r
+
+      \    console.log(pm.response.text());\r
+
+      }"
+    language: text/javascript
+order: 8000

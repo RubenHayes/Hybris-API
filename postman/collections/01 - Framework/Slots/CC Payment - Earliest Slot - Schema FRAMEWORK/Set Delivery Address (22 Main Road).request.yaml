@@ -1,0 +1,65 @@
+$kind: http-request
+url: "{{pnpOne}}/users/current/carts/{{cart}}/addresses/delivery?addressId={{selectedDeliveryAddressId}}"
+method: PUT
+headers:
+  origin: "{{oneOriginHeader}}"
+queryParams:
+  addressId: "{{selectedDeliveryAddressId}}"
+body:
+  type: json
+  content: ""
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: PUT /users/current/carts/{{cart}}/addresses/delivery\r
+
+      // Purpose: Set Delivery Address for Cart based on {{deliveryAddress}}\r
+
+      // Expected status: 200 OK\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      const assertStatus = eval(pm.globals.get(\"assertStatus\"));\r
+
+      assertStatus(200, \"OK\");\r
+
+      \r
+
+      // Conditional block\r
+
+      if (pm.response.code === 200) {\r
+
+      \r
+
+      \    // No jsonData needed — Hybris returns no body for Set Delivery Address\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      \r
+
+      } else {\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(pm.response.text());\r
+
+      }"
+    language: text/javascript
+order: 9000

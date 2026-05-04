@@ -1,0 +1,85 @@
+$kind: http-request
+name: Update Customer Profile
+url: "{{pnpOne}}/users/current/updateuserrequests"
+method: POST
+headers:
+  authority: www-qa.pnp.co.za
+  accept: application/json, text/plain, */*
+  accept-language: en-US,en;q=0.9
+  content-type: application/json
+  cookie: ConstructorioID_client_id=db4403cb-9d77-4cc0-9ca9-cb344f3d6e36; rxVisitor=1679488591376TGHVQKF7E3RHL1N5EAUOQUUK16NF61QG; _ga=GA1.4.940753850.1679488598; DefaultPoliciesPopupComponent=true; _hjSessionUser_898265=eyJpZCI6ImQ0ZGFmMTkwLTE2YzMtNWUzYy1iNjliLTVmMjQ4NDg4MjBmZiIsImNyZWF0ZWQiOjE2ODA1OTUxODY2NTIsImV4aXN0aW5nIjp0cnVlfQ==; _ga_Z9V0NVP6C7=GS1.1.1683798423.1.1.1683798448.35.0.0; _gcl_au=1.1.576565077.1693574127; _ga_H5WBTE0R4Q=GS1.1.1693895292.3.0.1693895293.59.0.0; _ga=GA1.3.2005216457.1680595177; _gid=GA1.3.1516606897.1698664656; ConstructorioID_session_id=129; dtCookie=v_4_srv_3_sn_F2E003D59C25ADCED6EF2F8A32B713D5_perc_100000_ol_0_mul_1_app-3A3ca1caea4eab4b2e_0; scarab.visitor=%223EBB8A93B700A4B5%22; ConstructorioID_session={"sessionId":129,"lastTime":1698916576680}; route=88fe18f0edaa9d674a3df6f66b59e737; _gat_UA-15757824-21=1; _ga_262S91JN8X=GS1.3.1698910012.98.1.1698916580.60.0.0; AWSALB=+7lr7HBYGHMyGuzOUPi30TZl0yMEWsFD4JB9J0/2r7EXkksmCkUukVo7mUhXA7I4YjMcuEFM6O20bPm55+GXPErYunCeavknP14ef8ufWT9tNOqQfKGwM7pLPl4j; AWSALBCORS=+7lr7HBYGHMyGuzOUPi30TZl0yMEWsFD4JB9J0/2r7EXkksmCkUukVo7mUhXA7I4YjMcuEFM6O20bPm55+GXPErYunCeavknP14ef8ufWT9tNOqQfKGwM7pLPl4j
+  origin: https://www-qa.pnp.co.za
+  referer: https://www-qa.pnp.co.za/oidc_login
+  sec-ch-ua: '"Not_A Brand";v="99", "Google Chrome";v="109", "Chromium";v="109"'
+  sec-ch-ua-mobile: ?0
+  sec-ch-ua-platform: '"Windows"'
+  sec-fetch-dest: empty
+  sec-fetch-mode: cors
+  sec-fetch-site: same-origin
+  user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36
+  x-anonymous-consents: "%5B%5D"
+queryParams:
+  - key: lang
+    value: en
+    disabled: true
+  - key: curr
+    value: ZAR
+    disabled: true
+body:
+  type: text
+  content: "{}"
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: POST /users/current/updateuserrequests\r
+
+      // Purpose: Trigger backend to refresh user information\r
+
+      // Expected status: 200 OK\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      const assertStatus = eval(pm.globals.get(\"assertStatus\"));\r
+
+      assertStatus(200, \"OK\");\r
+
+      \r
+
+      // Conditional block\r
+
+      if (pm.response.code === 200) {\r
+
+      \r
+
+      \    // No jsonData needed — Hybris returns no body for Update Customer Profile\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      \r
+
+      } else {\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(pm.response.text());\r
+
+      }"
+    language: text/javascript
+order: 7000
