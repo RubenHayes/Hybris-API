@@ -147,7 +147,7 @@ scripts:
 
       \    pm.test(\"maximumDeliveryItemsQuantity is Correct\", () => {\r
 
-      \        //pm.expect(maximumDeliveryItemsQuantity).to.eq(45); ## Want to cater for stores like HC06\r
+      \        //pm.expect(maximumDeliveryItemsQuantity).to.eq(45);  Want to cater for stores like HC06\r
 
       \        pm.expect(maximumDeliveryItemsQuantity).to.be.lessThan(46);\r
 
@@ -157,7 +157,7 @@ scripts:
 
       \    pm.test(\"warningDeliveryItemsQuantity is Correct\", () => {\r
 
-      \        //pm.expect(warningDeliveryItemsQuantity).to.eq(40); // ## Want to cater for stores like HC06\r
+      \        //pm.expect(warningDeliveryItemsQuantity).to.eq(40); //  Want to cater for stores like HC06\r
 
       \        pm.expect(warningDeliveryItemsQuantity).to.be.lessThan(41);\r
 
