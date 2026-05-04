@@ -1,4 +1,5 @@
 $kind: http-request
+name: Login With OTP
 url: "{{grocLogin}}"
 method: POST
 headers:
@@ -32,11 +33,11 @@ scripts:
 
       // 🧩 ~~ Schema Validation ~~ 🧩\r
 
-      const assertJsonSchema  = eval(pm.globals.get(\"assertJsonSchema\"));\r
+      const assertJsonSchema   = eval(pm.globals.get(\"assertJsonSchema\"));\r
 
-      const loginWithOTPSchema    = JSON.parse(pm.globals.get(\"loginWithOTPSchema\"));\r
+      const loginWithOTPSchema = JSON.parse(pm.globals.get(\"loginWithOTPSchema\"));\r
 
-      assertJsonSchema(loginWithOTPSchema, \"Login with OTP response schema\");\r
+      assertJsonSchema(loginWithOTPSchema, \"Login with OTP Response Schema\");\r
 
       \r
 
@@ -82,7 +83,7 @@ scripts:
 
       \r
 
-      \    pm.test(\"tokenType is 'Bearer'\", () => {\r
+      \    pm.test(\"Token Type Is Correct\", () => {\r
 
       \        pm.expect(tokenType).to.eq(\"Bearer\");\r
 
@@ -98,7 +99,7 @@ scripts:
 
       \r
 
-      \    pm.test(\"scope contains 'openid'\", () => {\r
+      \    pm.test(\"Scope contains 'openid'\", () => {\r
 
       \        pm.expect(scopeValue).to.include(\"openid\");\r
 
@@ -106,7 +107,7 @@ scripts:
 
       \r
 
-      \    pm.test(\"scope contains 'offline_access'\", () => {\r
+      \    pm.test(\"Scope contains 'offline_access'\", () => {\r
 
       \        pm.expect(scopeValue).to.include(\"offline_access\");\r
 

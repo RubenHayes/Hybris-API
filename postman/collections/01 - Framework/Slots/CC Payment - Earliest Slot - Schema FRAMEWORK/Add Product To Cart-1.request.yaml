@@ -1,0 +1,174 @@
+$kind: http-request
+name: Add Product To Cart
+url: "{{pnpOne}}/users/current/carts/{{cart}}/entries?code={{oneProduct1}}&qty=5"
+method: POST
+headers:
+  origin: "{{oneOriginHeader}}"
+queryParams:
+  code: "{{oneProduct1}}"
+  qty: "5"
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: POST /users/current/carts/{{cart}}/entries?code={{oneProduct1}}&qty=5\r
+
+      // Purpose: Adds 5 units of the specified product to the current cart\r
+
+      // Expected status: 200 OK\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      const assertStatus = eval(pm.globals.get(\"assertStatus\"));\r
+
+      assertStatus(200, \"OK\");\r
+
+      \r
+
+      // 🧩 ~~ Schema Validation ~~ 🧩\r
+
+      const assertJsonSchema       = eval(pm.globals.get(\"assertJsonSchema\"));\r
+
+      const addProductToCartSchema = JSON.parse(pm.globals.get(\"addProductToCartSchema\"));\r
+
+      assertJsonSchema(addProductToCartSchema, \"Add Product To Cart Response Schema\");\r
+
+      \r
+
+      // Conditional check for further testing\r
+
+      if (pm.response.code === 200) {\r
+
+      \r
+
+      \    // 🧩 ~~ Variable Declarations ~~ 🧩\r
+
+      \    var jsonData         = pm.response.json();\r
+
+      \    var jsonData         = pm.response.json();\r
+
+      \    var entry0           = jsonData.entry;\r
+
+      \    var entry0Quantity   = entry0.quantity;\r
+
+      \    var entry0Price      = entry0.product.price.value;\r
+
+      \    var entry0TotalPrice = entry0.totalPrice && entry0.totalPrice.value;\r
+
+      \    var stock            = entry0.product.stock || {};\r
+
+      \    var stockLevel       = stock.stockLevel;\r
+
+      \    var stockLevelStatus = stock.stockLevelStatus;\r
+
+      \r
+
+      \    // 🧩 ~~ Collection Variable Declarations ~~ 🧩\r
+
+      \    pm.collectionVariables.set(\"entryGuid\", entry0.guid);\r
+
+      \    pm.collectionVariables.set(\"productPrice\", entry0.product.price.value);\r
+
+      \r
+
+      \    // 🧩 ~~ Functional Tests ~~ 🧩\r
+
+      \    // --- Complementary Functional Tests (schema-like expectations) ---\r
+
+      \    pm.test(\"Status Code Is Correct\", () => {\r
+
+      \        pm.expect(jsonData.statusCode).to.eq(\"success\");\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"Product Quantity On Entry is 5\", () => {\r
+
+      \        pm.expect(entry0Quantity).to.eq(5);\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"Requested Quantity Is 5\", () => {\r
+
+      \        pm.expect(jsonData.quantity).to.eq(5);\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"Quantity Added is 5\", () => {\r
+
+      \        pm.expect(jsonData.quantityAdded).to.eq(5);\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"Entry Guid Is Not Empty\", () => {\r
+
+      \        pm.expect(entry0.guid.length).to.be.greaterThan(0);\r
+
+      \    });\r
+
+      \r
+
+      \    // --- Business Rule Functional Tests ---\r
+
+      \    pm.test(\"Stock Level Is Not 0\", () => {\r
+
+      \        pm.expect(stockLevel).not.to.eql(0);\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"Stock Level Status is 'inStock'\", () => {\r
+
+      \        pm.expect(stockLevelStatus).to.eq(\"inStock\");\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"First Entry Total Price Is Correct\", () => {\r
+
+      \        var expectedTotal = entry0Quantity * entry0Price;\r
+
+      \        expectedTotal = Number(expectedTotal.toFixed(2)); // round to 2 decimals\r
+
+      \        pm.expect(Number(entry0TotalPrice)).to.eql(expectedTotal);\r
+
+      \    });\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      \r
+
+      } else {\r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(`Response Code - ${pm.response.code}`);\r
+
+      \    console.log(pm.response.text());\r
+
+      }"
+    language: text/javascript
+order: 11391

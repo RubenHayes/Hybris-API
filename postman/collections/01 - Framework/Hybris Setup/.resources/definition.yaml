@@ -1156,6 +1156,674 @@ scripts:
 
       \r
 
+      // ===============================\r
+
+      // ✅ Get A Cart Schema\r
+
+      // ===============================\r
+
+      pm.globals.set(\r
+
+      \  \"getACartSchema\",\r
+
+      \  JSON.stringify({\r
+
+      \    type: \"object\",\r
+
+      \    additionalProperties: true,\r
+
+      \    required: [\r
+
+      \      \"type\",\r
+
+      \      \"code\",\r
+
+      \      \"entries\",\r
+
+      \      \"summary\",\r
+
+      \      \"totalItems\",\r
+
+      \      \"totalPrice\",\r
+
+      \      \"totalPriceWithTax\",\r
+
+      \      \"totalPriceWithTaxAndDriverTip\",\r
+
+      \      \"totalPriceWithTolerances\",\r
+
+      \      \"subTotal\",\r
+
+      \      \"deliveryCost\",\r
+
+      \      \"minimumSpend\",\r
+
+      \      \"minimumSpendMet\",\r
+
+      \      \"valueTowardMinimumSpend\",\r
+
+      \      \"totalTolerance\"\r
+
+      \    ],\r
+
+      \    properties: {\r
+
+      \      type: { type: \"string\" },\r
+
+      \      code: { type: \"string\" },\r
+
+      \r
+
+      \      entries: {\r
+
+      \        type: \"array\",\r
+
+      \        items: {\r
+
+      \          type: \"object\",\r
+
+      \          additionalProperties: true,\r
+
+      \          required: [\"entryNumber\", \"quantity\", \"totalPrice\", \"product\"],\r
+
+      \          properties: {\r
+
+      \            entryNumber: { type: \"number\" },\r
+
+      \            quantity: { type: \"number\" },\r
+
+      \r
+
+      \            totalPrice: {\r
+
+      \              type: \"object\",\r
+
+      \              additionalProperties: true,\r
+
+      \              required: [\"currencyIso\", \"value\"],\r
+
+      \              properties: {\r
+
+      \                currencyIso: { type: \"string\" },\r
+
+      \                value: { type: \"number\" }\r
+
+      \              }\r
+
+      \            },\r
+
+      \r
+
+      \            product: {\r
+
+      \              type: \"object\",\r
+
+      \              additionalProperties: true,\r
+
+      \              required: [\"code\", \"name\"],\r
+
+      \              properties: {\r
+
+      \                code: { type: \"string\" },\r
+
+      \                name: { type: \"string\" }\r
+
+      \              }\r
+
+      \            }\r
+
+      \          }\r
+
+      \        }\r
+
+      \      },\r
+
+      \r
+
+      \      totalPrice: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: true,\r
+
+      \        required: [\"currencyIso\", \"value\"],\r
+
+      \        properties: {\r
+
+      \          currencyIso: { type: \"string\" },\r
+
+      \          value: { type: \"number\" }\r
+
+      \        }\r
+
+      \      },\r
+
+      \r
+
+      \      totalPriceWithTax: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: true,\r
+
+      \        required: [\"currencyIso\", \"value\"],\r
+
+      \        properties: {\r
+
+      \          currencyIso: { type: \"string\" },\r
+
+      \          value: { type: \"number\" }\r
+
+      \        }\r
+
+      \      },\r
+
+      \r
+
+      \      totalPriceWithTaxAndDriverTip: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: true,\r
+
+      \        required: [\"currencyIso\", \"value\"],\r
+
+      \        properties: {\r
+
+      \          currencyIso: { type: \"string\" },\r
+
+      \          value: { type: \"number\" }\r
+
+      \        }\r
+
+      \      },\r
+
+      \r
+
+      \      totalPriceWithTolerances: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: true,\r
+
+      \        required: [\"currencyIso\", \"formattedValue\", \"value\"],\r
+
+      \        properties: {\r
+
+      \          currencyIso: { type: \"string\" },\r
+
+      \          formattedValue: { type: \"string\" },\r
+
+      \          value: { type: \"number\" }\r
+
+      \        }\r
+
+      \      },\r
+
+      \r
+
+      \      subTotal: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: true,\r
+
+      \        required: [\"currencyIso\", \"value\"],\r
+
+      \        properties: {\r
+
+      \          currencyIso: { type: \"string\" },\r
+
+      \          value: { type: \"number\" }\r
+
+      \        }\r
+
+      \      },\r
+
+      \r
+
+      \      deliveryCost: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: true,\r
+
+      \        required: [\"currencyIso\", \"value\"],\r
+
+      \        properties: {\r
+
+      \          currencyIso: { type: \"string\" },\r
+
+      \          value: { type: \"number\" }\r
+
+      \        }\r
+
+      \      },\r
+
+      \r
+
+      \      summary: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: true,\r
+
+      \        required: [\"summaryBreakdown\", \"totals\"],\r
+
+      \        properties: {\r
+
+      \          summaryBreakdown: {\r
+
+      \            type: \"array\",\r
+
+      \            items: {\r
+
+      \              type: \"object\",\r
+
+      \              additionalProperties: true,\r
+
+      \              required: [\"name\", \"value\", \"formattedValue\"],\r
+
+      \              properties: {\r
+
+      \                name: { type: \"string\" },\r
+
+      \                value: { type: \"number\" },\r
+
+      \                formattedValue: { type: \"string\" }\r
+
+      \              }\r
+
+      \            }\r
+
+      \          },\r
+
+      \r
+
+      \          totals: {\r
+
+      \            type: \"object\",\r
+
+      \            additionalProperties: true,\r
+
+      \            required: [\"cartTotal\", \"total\"],\r
+
+      \            properties: {\r
+
+      \              cartTotal: {\r
+
+      \                type: \"object\",\r
+
+      \                additionalProperties: true,\r
+
+      \                required: [\"value\"],\r
+
+      \                properties: {\r
+
+      \                  value: { type: \"number\" }\r
+
+      \                }\r
+
+      \              },\r
+
+      \              total: {\r
+
+      \                type: \"object\",\r
+
+      \                additionalProperties: true,\r
+
+      \                required: [\"value\"],\r
+
+      \                properties: {\r
+
+      \                  value: { type: \"number\" }\r
+
+      \                }\r
+
+      \              }\r
+
+      \            }\r
+
+      \          }\r
+
+      \        }\r
+
+      \      },\r
+
+      \r
+
+      \      minimumSpend: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: true,\r
+
+      \        required: [\"currencyIso\", \"value\"],\r
+
+      \        properties: {\r
+
+      \          currencyIso: { type: \"string\" },\r
+
+      \          value: { type: \"number\" }\r
+
+      \        }\r
+
+      \      },\r
+
+      \r
+
+      \      valueTowardMinimumSpend: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: true,\r
+
+      \        required: [\"currencyIso\", \"value\"],\r
+
+      \        properties: {\r
+
+      \          currencyIso: { type: \"string\" },\r
+
+      \          value: { type: \"number\" }\r
+
+      \        }\r
+
+      \      },\r
+
+      \r
+
+      \      minimumSpendMet: { type: \"boolean\" },\r
+
+      \r
+
+      \      totalTolerance: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: true,\r
+
+      \        required: [\"currencyIso\", \"formattedValue\", \"value\"],\r
+
+      \        properties: {\r
+
+      \          currencyIso: { type: \"string\" },\r
+
+      \          formattedValue: { type: \"string\" },\r
+
+      \          value: { type: \"number\" }\r
+
+      \        }\r
+
+      \      },\r
+
+      \r
+
+      \      totalItems: { type: \"number\" }\r
+
+      \    }\r
+
+      \  })\r
+
+      );\r
+
+      \r
+
+      // ===============================\r
+
+      // ✅ Add Product To Cart Schema\r
+
+      // ===============================\r
+
+      pm.globals.set(\r
+
+      \  \"addProductToCartSchema\",\r
+
+      \  JSON.stringify({\r
+
+      \    type: \"object\",\r
+
+      \    additionalProperties: true,\r
+
+      \    required: [\r
+
+      \        \"entry\", \r
+
+      \        \"quantity\", \r
+
+      \        \"quantityAdded\", \r
+
+      \        \"statusCode\"\r
+
+      \    ],\r
+
+      \    properties: {\r
+
+      \      entry: {\r
+
+      \        type: \"object\",\r
+
+      \        additionalProperties: true,\r
+
+      \        required: [\r
+
+      \          \"allowSubstitute\",\r
+
+      \          \"categoryDisplayGroup\",\r
+
+      \          \"configurationInfos\",\r
+
+      \          \"entryNumber\",\r
+
+      \          \"giveAway\",\r
+
+      \          \"guid\",\r
+
+      \          \"product\",\r
+
+      \          \"quantity\",\r
+
+      \          \"totalPrice\"\r
+
+      \        ],\r
+
+      \        properties: {\r
+
+      \          allowSubstitute: { type: \"boolean\" },\r
+
+      \r
+
+      \          categoryDisplayGroup: {\r
+
+      \            type: \"object\",\r
+
+      \            additionalProperties: true,\r
+
+      \            required: [\"code\", \"name\"],\r
+
+      \            properties: {\r
+
+      \              code: { type: \"string\" },\r
+
+      \              name: { type: \"string\" }\r
+
+      \            }\r
+
+      \          },\r
+
+      \r
+
+      \          configurationInfos: {\r
+
+      \            type: \"array\"\r
+
+      \          },\r
+
+      \r
+
+      \          entryNumber: { type: \"number\" },\r
+
+      \          giveAway:    { type: \"boolean\" },\r
+
+      \          guid:        { type: \"string\" },\r
+
+      \r
+
+      \          product: {\r
+
+      \            type: \"object\",\r
+
+      \            additionalProperties: true,\r
+
+      \            required: [\r
+
+      \              \"available\",\r
+
+      \              \"availableForPickup\",\r
+
+      \              \"baseProduct\",\r
+
+      \              \"brand\",\r
+
+      \              \"brandSellerId\",\r
+
+      \              \"code\",\r
+
+      \              \"inStockIndicator\",\r
+
+      \              \"name\",\r
+
+      \              \"price\",\r
+
+      \              \"productIdForTracking\",\r
+
+      \              \"purchasable\",\r
+
+      \              \"stock\",\r
+
+      \              \"url\"\r
+
+      \            ],\r
+
+      \            properties: {\r
+
+      \              available:            { type: \"boolean\" },\r
+
+      \              availableForPickup:   { type: \"boolean\" },\r
+
+      \              baseProduct:          { type: \"string\" },\r
+
+      \              brand:                { type: \"string\" },\r
+
+      \              brandSellerId:        { type: \"string\" },\r
+
+      \              code:                 { type: \"string\" },\r
+
+      \              inStockIndicator:     { type: \"boolean\" },\r
+
+      \              name:                 { type: \"string\" },\r
+
+      \r
+
+      \              price: {\r
+
+      \                type: \"object\",\r
+
+      \                additionalProperties: true,\r
+
+      \                required: [\"currencyIso\", \"oldPrice\", \"value\"],\r
+
+      \                properties: {\r
+
+      \                  currencyIso:  { type: \"string\" },\r
+
+      \                  oldPrice:     { type: \"number\" },\r
+
+      \                  value:        { type: \"number\" }\r
+
+      \                }\r
+
+      \              },\r
+
+      \r
+
+      \              productIdForTracking: { type: \"string\" },\r
+
+      \              purchasable: { type: \"boolean\" },\r
+
+      \r
+
+      \              stock: {\r
+
+      \                type: \"object\",\r
+
+      \                additionalProperties: true,\r
+
+      \                required: [\"stockLevel\", \"stockLevelStatus\"],\r
+
+      \                properties: {\r
+
+      \                  stockLevel:       { type: \"number\" },\r
+
+      \                  stockLevelStatus: { type: \"string\" }\r
+
+      \                }\r
+
+      \              },\r
+
+      \r
+
+      \              url: { type: \"string\" }\r
+
+      \            }\r
+
+      \          },\r
+
+      \r
+
+      \          quantity: { type: \"number\" },\r
+
+      \r
+
+      \          totalPrice: {\r
+
+      \            type: \"object\",\r
+
+      \            additionalProperties: true,\r
+
+      \            required: [\"currencyIso\", \"oldPrice\", \"value\"],\r
+
+      \            properties: {\r
+
+      \              currencyIso:  { type: \"string\" },\r
+
+      \              oldPrice:     { type: \"number\" },\r
+
+      \              value:        { type: \"number\" }\r
+
+      \            }\r
+
+      \          }\r
+
+      \        }\r
+
+      \      },\r
+
+      \r
+
+      \      quantity:      { type: \"number\" },\r
+
+      \      quantityAdded: { type: \"number\" },\r
+
+      \      statusCode:    { type: \"string\" }\r
+
+      \    }\r
+
+      \  })\r
+
+      );\r
+
+      \r
+
       \r
 
       // ===============================\r

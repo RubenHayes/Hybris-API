@@ -1,4 +1,5 @@
 $kind: http-request
+name: Get A Cart (Validate Delivery Address)
 url: "{{pnpOne}}/users/current/carts/{{cart}}?refreshCart=true&fields=FULL"
 method: GET
 headers:
@@ -28,57 +29,27 @@ scripts:
 
       // Purpose: Retrieves the full cart details and validates the total price for the current cart\r
 
-      // Auth: Bearer Token | {{accessToken}}\r
-
       // Expected status: 200 OK\r
 
       // ===========================================\r
 
       \r
 
-      // 🧩 ~~ Test Configuration ~~ 🧩\r
-
-      var runBaselineTests   = pm.collectionVariables.get(\"runBaselineTests\");    // Set to false to skip baseline tests\r
-
-      var runFunctionalTests = pm.collectionVariables.get(\"runFunctionalTests\");  // Set to false to skip functional tests \r
-
-      var environmentFlag    = pm.environment.name;                               // Get the current environment name\r
-
-      \r
-
-      // 🧩 ~~ Strict Schema Toggle ~~ 🧩\r
-
-      // Uncomment the line below to force strict validation ON for this request only\r
-
-      // var strictSchemaValidation = true;\r
-
-      \r
-
-      // Use collection variable (default behavior) - comment this out if you want to override the collection variable value\r
-
-      var strictSchemaValidationRaw = pm.collectionVariables.get(\"strictSchemaValidation\");\r
-
-      var strictSchemaValidation    =\r
-
-      \    strictSchemaValidationRaw === true || strictSchemaValidationRaw === \"true\";\r
-
-      \r
-
       // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
 
-      pm.test(\"[Carts Controller] Get Total Cart Price - Status code is 200\", () => {\r
+      const assertStatus = eval(pm.globals.get(\"assertStatus\"));\r
 
-      \    pm.response.to.have.status(200);\r
-
-      });\r
+      assertStatus(200, \"OK\");\r
 
       \r
 
-      pm.test(\"[Carts Controller] Get Total Cart Price - Response status is OK\", () => {\r
+      // 🧩 ~~ Schema Validation ~~ 🧩\r
 
-      \    pm.expect(pm.response.status).to.eq(\"OK\");\r
+      const assertJsonSchema = eval(pm.globals.get(\"assertJsonSchema\"));\r
 
-      });\r
+      const getACartSchema  = JSON.parse(pm.globals.get(\"getACartSchema\"));\r
+
+      assertJsonSchema(getACartSchema, \"Create Cart response schema\");\r
 
       \r
 
@@ -102,437 +73,43 @@ scripts:
 
       \r
 
-      \    if (runBaselineTests) {\r
-
-      \r
-
-      \        // 🧩 ~~ Schema Definition ~~ 🧩\r
-
-      \        // Partial schema focusing on key structures to keep it maintainable for FULL response\r
-
-      \        const responseSchema = {\r
-
-      \            type: \"object\",\r
-
-      \            additionalProperties: !strictSchemaValidation,\r
-
-      \            required: [\r
-
-      \                \"type\",\r
-
-      \                \"code\",\r
-
-      \                \"entries\",\r
-
-      \                \"summary\",\r
-
-      \                \"totalItems\",\r
-
-      \                \"totalPrice\",\r
-
-      \                \"totalPriceWithTax\",\r
-
-      \                \"totalPriceWithTaxAndDriverTip\",\r
-
-      \                \"totalPriceWithTolerances\",\r
-
-      \                \"subTotal\",\r
-
-      \                \"deliveryCost\",\r
-
-      \                \"minimumSpend\",\r
-
-      \                \"minimumSpendMet\",\r
-
-      \                \"valueTowardMinimumSpend\",\r
-
-      \                \"totalTolerance\"\r
-
-      \            ],\r
-
-      \            properties: {\r
-
-      \                type: { type: \"string\" },\r
-
-      \                code: { type: \"string\" },\r
-
-      \                entries: {\r
-
-      \                    type: \"array\",\r
-
-      \                    items: {\r
-
-      \                        type: \"object\",\r
-
-      \                        additionalProperties: !strictSchemaValidation,\r
-
-      \                        required: [\"entryNumber\", \"quantity\", \"totalPrice\", \"product\"],\r
-
-      \                        properties: {\r
-
-      \                            entryNumber: { type: \"number\" },\r
-
-      \                            quantity:    { type: \"number\" },\r
-
-      \                            totalPrice: {\r
-
-      \                                type: \"object\",\r
-
-      \                                additionalProperties: !strictSchemaValidation,\r
-
-      \                                required: [\"currencyIso\", \"value\"],\r
-
-      \                                properties: {\r
-
-      \                                    currencyIso: { type: \"string\" },\r
-
-      \                                    value:       { type: \"number\" }\r
-
-      \                                }\r
-
-      \                            },\r
-
-      \                            product: {\r
-
-      \                                type: \"object\",\r
-
-      \                                additionalProperties: !strictSchemaValidation,\r
-
-      \                                required: [\"code\", \"name\"],\r
-
-      \                                properties: {\r
-
-      \                                    code: { type: \"string\" },\r
-
-      \                                    name: { type: \"string\" }\r
-
-      \                                }\r
-
-      \                            }\r
-
-      \                        }\r
-
-      \                    }\r
-
-      \                },\r
-
-      \                totalPrice: {\r
-
-      \                    type: \"object\",\r
-
-      \                    additionalProperties: !strictSchemaValidation,\r
-
-      \                    required: [\"currencyIso\", \"value\"],\r
-
-      \                    properties: {\r
-
-      \                        currencyIso: { type: \"string\" },\r
-
-      \                        value:       { type: \"number\" }\r
-
-      \                    }\r
-
-      \                },\r
-
-      \                totalPriceWithTax: {\r
-
-      \                    type: \"object\",\r
-
-      \                    additionalProperties: !strictSchemaValidation,\r
-
-      \                    required: [\"currencyIso\", \"value\"],\r
-
-      \                    properties: {\r
-
-      \                        currencyIso: { type: \"string\" },\r
-
-      \                        value:       { type: \"number\" }\r
-
-      \                    }\r
-
-      \                },\r
-
-      \                totalPriceWithTaxAndDriverTip: {\r
-
-      \                    type: \"object\",\r
-
-      \                    additionalProperties: !strictSchemaValidation,\r
-
-      \                    required: [\"currencyIso\", \"value\"],\r
-
-      \                    properties: {\r
-
-      \                        currencyIso: { type: \"string\" },\r
-
-      \                        value:       { type: \"number\" }\r
-
-      \                    }\r
-
-      \                },\r
-
-      \                totalPriceWithTolerances: {\r
-
-      \                    type: \"object\",\r
-
-      \                    additionalProperties: !strictSchemaValidation,\r
-
-      \                    required: [\"currencyIso\", \"formattedValue\", \"value\"],\r
-
-      \                    properties: {\r
-
-      \                        currencyIso:    { type: \"string\" },\r
-
-      \                        formattedValue: { type: \"string\" },\r
-
-      \                        value:          { type: \"number\" }\r
-
-      \                    }\r
-
-      \                },\r
-
-      \                subTotal: {\r
-
-      \                    type: \"object\",\r
-
-      \                    additionalProperties: !strictSchemaValidation,\r
-
-      \                    required: [\"currencyIso\", \"value\"],\r
-
-      \                    properties: {\r
-
-      \                        currencyIso: { type: \"string\" },\r
-
-      \                        value:       { type: \"number\" }\r
-
-      \                    }\r
-
-      \                },\r
-
-      \                deliveryCost: {\r
-
-      \                    type: \"object\",\r
-
-      \                    additionalProperties: !strictSchemaValidation,\r
-
-      \                    required: [\"currencyIso\", \"value\"],\r
-
-      \                    properties: {\r
-
-      \                        currencyIso: { type: \"string\" },\r
-
-      \                        value:       { type: \"number\" }\r
-
-      \                    }\r
-
-      \                },\r
-
-      \                summary: {\r
-
-      \                    type: \"object\",\r
-
-      \                    additionalProperties: !strictSchemaValidation,\r
-
-      \                    required: [\"summaryBreakdown\", \"totals\"],\r
-
-      \                    properties: {\r
-
-      \                        summaryBreakdown: {\r
-
-      \                            type: \"array\",\r
-
-      \                            items: {\r
-
-      \                                type: \"object\",\r
-
-      \                                additionalProperties: !strictSchemaValidation,\r
-
-      \                                required: [\"name\", \"value\", \"formattedValue\"],\r
-
-      \                                properties: {\r
-
-      \                                    name:           { type: \"string\" },\r
-
-      \                                    value:          { type: \"number\" },\r
-
-      \                                    formattedValue: { type: \"string\" }\r
-
-      \                                }\r
-
-      \                            }\r
-
-      \                        },\r
-
-      \                        totals: {\r
-
-      \                            type: \"object\",\r
-
-      \                            additionalProperties: !strictSchemaValidation,\r
-
-      \                            required: [\"cartTotal\", \"total\"],\r
-
-      \                            properties: {\r
-
-      \                                cartTotal: {\r
-
-      \                                    type: \"object\",\r
-
-      \                                    additionalProperties: !strictSchemaValidation,\r
-
-      \                                    required: [\"value\"],\r
-
-      \                                    properties: {\r
-
-      \                                        value: { type: \"number\" }\r
-
-      \                                    }\r
-
-      \                                },\r
-
-      \                                total: {\r
-
-      \                                    type: \"object\",\r
-
-      \                                    additionalProperties: !strictSchemaValidation,\r
-
-      \                                    required: [\"value\"],\r
-
-      \                                    properties: {\r
-
-      \                                        value: { type: \"number\" }\r
-
-      \                                    }\r
-
-      \                                }\r
-
-      \                            }\r
-
-      \                        }\r
-
-      \                    }\r
-
-      \                },\r
-
-      \                minimumSpend: {\r
-
-      \                    type: \"object\",\r
-
-      \                    additionalProperties: !strictSchemaValidation,\r
-
-      \                    required: [\"currencyIso\", \"value\"],\r
-
-      \                    properties: {\r
-
-      \                        currencyIso: { type: \"string\" },\r
-
-      \                        value:       { type: \"number\" }\r
-
-      \                    }\r
-
-      \                },\r
-
-      \                valueTowardMinimumSpend: {\r
-
-      \                    type: \"object\",\r
-
-      \                    additionalProperties: !strictSchemaValidation,\r
-
-      \                    required: [\"currencyIso\", \"value\"],\r
-
-      \                    properties: {\r
-
-      \                        currencyIso: { type: \"string\" },\r
-
-      \                        value:       { type: \"number\" }\r
-
-      \                    }\r
-
-      \                },\r
-
-      \                minimumSpendMet: { type: \"boolean\" },\r
-
-      \                totalTolerance: {\r
-
-      \                    type: \"object\",\r
-
-      \                    additionalProperties: !strictSchemaValidation,\r
-
-      \                    required: [\"currencyIso\", \"formattedValue\", \"value\"],\r
-
-      \                    properties: {\r
-
-      \                        currencyIso:    { type: \"string\" },\r
-
-      \                        formattedValue: { type: \"string\" },\r
-
-      \                        value:          { type: \"number\" }\r
-
-      \                    }\r
-
-      \                },\r
-
-      \                totalItems: { type: \"number\" }\r
-
-      \            }\r
-
-      \        };\r
-
-      \r
-
-      \        // 🧩 ~~ Schema Validation Test ~~ 🧩\r
-
-      \        pm.test(\"[Carts Controller] Get Total Cart Price - Response matches schema\", () => {\r
-
-      \            pm.response.to.have.jsonSchema(responseSchema);\r
-
-      \        });\r
-
-      \    }\r
-
-      \r
-
       \    // 🧩 ~~ Functional Tests ~~ 🧩\r
 
-      \    if (runFunctionalTests) {\r
+      \    // --- Business Rule Functional Tests ---\r
+
+      \    pm.test(\"Minimum spend met is false\", () => {\r
+
+      \        pm.expect(minimumSpendMet).to.be.false;\r
+
+      \    });\r
 
       \r
 
-      \        // --- Business Rule Functional Tests ---\r
+      \    pm.test(\"Type field is correct\", () => {\r
 
-      \        pm.test(\"[Carts Controller] Get Total Cart Price - Minimum spend met is false\", () => {\r
+      \        pm.expect(jsonData.type).to.eq(\"cartWsDTO\");\r
 
-      \            pm.expect(minimumSpendMet).to.be.false;\r
-
-      \        });\r
+      \    });\r
 
       \r
 
-      \        pm.test(\"[Carts Controller] Get Total Cart Price - Type field is correct\", () => {\r
+      \    pm.test(\"Base store info is correct\", () => {\r
 
-      \            pm.expect(jsonData.type).to.eq(\"cartWsDTO\");\r
+      \        pm.expect(baseStore.displayName).to.eq(\"Test Claremont \");\r
 
-      \        });\r
+      \        pm.expect(baseStore.name).to.eq(\"WC18 Claremont\");\r
 
-      \r
+      \        pm.expect(baseStore.uid).to.eq(\"WC18\");    \r
 
-      \        pm.test(\"[Carts Controller] Get Total Cart Price - Base store info is correct\", () => {\r
-
-      \            pm.expect(baseStore.displayName).to.eq(\"Test Claremont \");\r
-
-      \            pm.expect(baseStore.name).to.eq(\"WC18 Claremont\");\r
-
-      \            pm.expect(baseStore.uid).to.eq(\"WC18\");    \r
-
-      \        });\r
+      \    });\r
 
       \        \r
 
-      \        pm.test(\"[Carts Controller] Get Total Cart Price - Delivery address is correct\", () => {\r
+      \    pm.test(\"Delivery address is correct\", () => {\r
 
-      \            pm.expect(jsonData.deliveryAddress.id).to.eq(deliveryAddress);  \r
+      \        pm.expect(jsonData.deliveryAddress.id).to.eq(deliveryAddress);  \r
 
-      \        });\r
-
-      \    }\r
+      \    });\r
 
       \r
 

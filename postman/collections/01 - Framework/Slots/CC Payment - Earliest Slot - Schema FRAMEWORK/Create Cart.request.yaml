@@ -39,7 +39,7 @@ scripts:
 
       const createCartSchema  = JSON.parse(pm.globals.get(\"createCartSchema\"));\r
 
-      assertJsonSchema(createCartSchema, \"Create Cart response schema\");\r
+      assertJsonSchema(createCartSchema, \"Create Cart Response Schema\");\r
 
       \r
 

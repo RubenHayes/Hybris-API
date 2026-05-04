@@ -1,23 +1,41 @@
 $kind: http-request
+name: Get Payment Plan
 url: "{{pnpOne}}/users/current/carts/{{cart}}/paymentplan?phase=CHECKOUT&lang=en&curr=ZAR"
 method: GET
 headers:
-  accept: application/json, text/plain, */*
-  accept-language: en-US,en;q=0.9
-  authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJhY3IiOiJodHRwOlwvXC9waWNrbnBheS5jby56YVwvb2lkY1wvYXV0aGxldmVsc1wvMyIsInN1YiI6IjUxRUQ5NTUxOEVDQzFFRUVBREMwOThCMjE0MDQ3NUZGIiwiYXVkIjpbInN0b3JlZnJvbnQyIl0sImFtciI6WyJQV0QiXSwic2NvcGUiOlsib3BlbmlkIiwib2ZmbGluZV9hY2Nlc3MiXSwiaXNzIjoiaHR0cHM6XC9cL3EtbG9naW4ucG5wLmNvLnphXC8iLCJleHAiOjE3NDM0MjA5MDcsImlhdCI6MTc0MzQxMzcwNywianRpIjoiMzA3ZmZhYzQtM2QxOC00MDQyLTgyZTYtMzdmN2EzYjRjNTQ1In0.V-KbOQe3vi78chPCHf_6gvGC1JaNMb9azvhzU1VD6CeL5lj8xW0YvnrxE0V9p7NPX-Q9KPfzmSnzWv1PC5yO0xQwcsKf7xnRSt8hivzjUaZdxXXTSwaxG1uDpaf1uOVfeuKDIWrC6pSiCoGkQz7pas9j1VlQvI0SwqIPYTL5iYTP2JgXisNP9HWOc_Ckm69dzT_hXb_3WGzye-TJ8P2n5nT_g6t3VqRaFaDnWtfvifjaXJpVcpN_zZIiHTSMnZETcNB5ScFGTxgO01CqetiUhgqAQxRNSelQKy8PfseluKLaLPRZ5y8Q44OxCasbGQoASf_vzmF2GrDaQY4xGPcL_w
-  if-none-match: '"0df73636d776fd7eb6987b8ac11c566d7:dtagent10309250310100759caxM:dtagent10309250310100759caxM"'
-  priority: u=1, i
-  referer: https://www-qa.pnp.co.za/checkout/payment-details-v2
-  sec-ch-ua: '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"'
-  sec-ch-ua-mobile: ?0
-  sec-ch-ua-platform: '"Windows"'
-  sec-fetch-dest: empty
-  sec-fetch-mode: cors
-  sec-fetch-site: same-origin
-  user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36
-  x-anonymous-consents: "%5B%5D"
-  x-pnp-cache-key: smartshopper
-  Cookie: JSESSIONID=B9563442D0601C8C3AB9400C7AD9260C; _hjSessionUser_898265=eyJpZCI6IjYxYTg3ZWM4LWI1YzItNWRhMy05MTZlLWMzY2ZhNTI2NDY1NiIsImNyZWF0ZWQiOjE3MTIxMzE5NTA5OTAsImV4aXN0aW5nIjp0cnVlfQ==; fw_utm={%22value%22:%22{}%22%2C%22createTime%22:%222024-08-07T10:36:05.210Z%22}; fw_uid={%22value%22:%2227089601-5e84-4993-ae48-6d0f7b424791%22%2C%22createTime%22:%222024-08-07T10:36:05.213Z%22}; fw_se={%22value%22:%22fws2.e388a6e4-674f-41b2-8317-004172e0a1c1.1.1723026965225%22%2C%22createTime%22:%222024-08-07T10:36:05.225Z%22}; _tt_enable_cookie=1; _ttp=5kYsFL0EVmV-3Bjv9zsyueR_eAd; _ga_H5WBTE0R4Q=GS1.1.1728551814.25.0.1728551822.52.0.0; _ga=GA1.3.660413003.1711456793; rxVisitor=1712059251594LR9KVK06G4L1E7RI67SAR90LPCS683MI; route=e9f8c92967f0a60608a8fa47bac4e8a8; dtCookie=v_4_srv_1_sn_99C5589627F9A7220832E3F525008289_perc_100000_ol_0_mul_1_app-3A3ca1caea4eab4b2e_0; _gid=GA1.3.344116660.1743405907; scarab.visitor=%221DA1F95FCAE2AB6D%22; scarab.profile=%22107829_EA%7C1743412054%22; ConstructorioID_session_id=272; ConstructorioID_client_id=f5166496-b597-4f40-b198-fcffcfea221c; ConstructorioID_session={"sessionId":272,"lastTime":1743412743777}; _ga_262S91JN8X=GS1.3.1743405908.226.1.1743413707.60.0.0
+  - key: accept
+    value: application/json, text/plain, */*
+  - key: accept-language
+    value: en-US,en;q=0.9
+  - key: authorization
+    value: Bearer eyJhbGciOiJSUzI1NiJ9.eyJhY3IiOiJodHRwOlwvXC9waWNrbnBheS5jby56YVwvb2lkY1wvYXV0aGxldmVsc1wvMyIsInN1YiI6IjUxRUQ5NTUxOEVDQzFFRUVBREMwOThCMjE0MDQ3NUZGIiwiYXVkIjpbInN0b3JlZnJvbnQyIl0sImFtciI6WyJQV0QiXSwic2NvcGUiOlsib3BlbmlkIiwib2ZmbGluZV9hY2Nlc3MiXSwiaXNzIjoiaHR0cHM6XC9cL3EtbG9naW4ucG5wLmNvLnphXC8iLCJleHAiOjE3NDM0MjA5MDcsImlhdCI6MTc0MzQxMzcwNywianRpIjoiMzA3ZmZhYzQtM2QxOC00MDQyLTgyZTYtMzdmN2EzYjRjNTQ1In0.V-KbOQe3vi78chPCHf_6gvGC1JaNMb9azvhzU1VD6CeL5lj8xW0YvnrxE0V9p7NPX-Q9KPfzmSnzWv1PC5yO0xQwcsKf7xnRSt8hivzjUaZdxXXTSwaxG1uDpaf1uOVfeuKDIWrC6pSiCoGkQz7pas9j1VlQvI0SwqIPYTL5iYTP2JgXisNP9HWOc_Ckm69dzT_hXb_3WGzye-TJ8P2n5nT_g6t3VqRaFaDnWtfvifjaXJpVcpN_zZIiHTSMnZETcNB5ScFGTxgO01CqetiUhgqAQxRNSelQKy8PfseluKLaLPRZ5y8Q44OxCasbGQoASf_vzmF2GrDaQY4xGPcL_w
+    disabled: true
+  - key: if-none-match
+    value: '"0df73636d776fd7eb6987b8ac11c566d7:dtagent10309250310100759caxM:dtagent10309250310100759caxM"'
+  - key: priority
+    value: u=1, i
+  - key: referer
+    value: https://www-qa.pnp.co.za/checkout/payment-details-v2
+  - key: sec-ch-ua
+    value: '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"'
+  - key: sec-ch-ua-mobile
+    value: ?0
+  - key: sec-ch-ua-platform
+    value: '"Windows"'
+  - key: sec-fetch-dest
+    value: empty
+  - key: sec-fetch-mode
+    value: cors
+  - key: sec-fetch-site
+    value: same-origin
+  - key: user-agent
+    value: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36
+  - key: x-anonymous-consents
+    value: "%5B%5D"
+  - key: x-pnp-cache-key
+    value: smartshopper
+  - key: Cookie
+    value: JSESSIONID=B9563442D0601C8C3AB9400C7AD9260C; _hjSessionUser_898265=eyJpZCI6IjYxYTg3ZWM4LWI1YzItNWRhMy05MTZlLWMzY2ZhNTI2NDY1NiIsImNyZWF0ZWQiOjE3MTIxMzE5NTA5OTAsImV4aXN0aW5nIjp0cnVlfQ==; fw_utm={%22value%22:%22{}%22%2C%22createTime%22:%222024-08-07T10:36:05.210Z%22}; fw_uid={%22value%22:%2227089601-5e84-4993-ae48-6d0f7b424791%22%2C%22createTime%22:%222024-08-07T10:36:05.213Z%22}; fw_se={%22value%22:%22fws2.e388a6e4-674f-41b2-8317-004172e0a1c1.1.1723026965225%22%2C%22createTime%22:%222024-08-07T10:36:05.225Z%22}; _tt_enable_cookie=1; _ttp=5kYsFL0EVmV-3Bjv9zsyueR_eAd; _ga_H5WBTE0R4Q=GS1.1.1728551814.25.0.1728551822.52.0.0; _ga=GA1.3.660413003.1711456793; rxVisitor=1712059251594LR9KVK06G4L1E7RI67SAR90LPCS683MI; route=e9f8c92967f0a60608a8fa47bac4e8a8; dtCookie=v_4_srv_1_sn_99C5589627F9A7220832E3F525008289_perc_100000_ol_0_mul_1_app-3A3ca1caea4eab4b2e_0; _gid=GA1.3.344116660.1743405907; scarab.visitor=%221DA1F95FCAE2AB6D%22; scarab.profile=%22107829_EA%7C1743412054%22; ConstructorioID_session_id=272; ConstructorioID_client_id=f5166496-b597-4f40-b198-fcffcfea221c; ConstructorioID_session={"sessionId":272,"lastTime":1743412743777}; _ga_262S91JN8X=GS1.3.1743405908.226.1.1743413707.60.0.0
 queryParams:
   phase: CHECKOUT
   lang: en
