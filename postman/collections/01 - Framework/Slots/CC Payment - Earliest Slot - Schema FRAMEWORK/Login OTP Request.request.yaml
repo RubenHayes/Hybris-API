@@ -1,4 +1,5 @@
 $kind: http-request
+name: Login OTP Request
 url: "{{grocLoginOtpReq}}"
 method: POST
 headers:
@@ -36,7 +37,7 @@ scripts:
 
       const loginOTPSchema    = JSON.parse(pm.globals.get(\"loginOTPSchema\"));\r
 
-      assertJsonSchema(loginOTPSchema, \"Login OTP response schema\");\r
+      assertJsonSchema(loginOTPSchema, \"Login OTP Response Schema\");\r
 
       \r
 
@@ -48,13 +49,13 @@ scripts:
 
       \    // 🧩 ~~ Variable Declarations ~~ 🧩\r
 
-      \    var jsonData    = pm.response.json();\r
+      \    var jsonData = pm.response.json();\r
 
       \r
 
       \    // 🧩 ~~ Functional Tests ~~ 🧩\r
 
-      \    pm.test(\"'principalType' Is Correct\", () => {\r
+      \    pm.test(\"'Principal Type Is Correct\", () => {\r
 
       \        pm.expect(jsonData.principalType).to.eq(\"USERNAME\");\r
 
@@ -62,7 +63,7 @@ scripts:
 
       \r
 
-      \    pm.test(\"OTP 'status' Is Correct\", () => {\r
+      \    pm.test(\"OTP Status Is Correct\", () => {\r
 
       \        pm.expect(jsonData.status).to.eq(\"SENT\");\r
 

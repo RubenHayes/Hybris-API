@@ -1,4 +1,5 @@
 $kind: http-request
+name: Get Delivery Address List
 url: "{{pnpOne}}/users/current/addresses"
 method: GET
 auth:
@@ -29,11 +30,11 @@ scripts:
 
       // 🧩 ~~ Schema Validation ~~ 🧩\r
 
-      const assertJsonSchema    = eval(pm.globals.get(\"assertJsonSchema\"));\r
+      const assertJsonSchema   = eval(pm.globals.get(\"assertJsonSchema\"));\r
 
-      const getAddressesSchema  = JSON.parse(pm.globals.get(\"getAddressesSchema\"));\r
+      const getAddressesSchema = JSON.parse(pm.globals.get(\"getAddressesSchema\"));\r
 
-      assertJsonSchema(getAddressesSchema, \"Create Cart response schema\");\r
+      assertJsonSchema(getAddressesSchema, \"Get Delivery Address List Response Schema\");\r
 
       \r
 
