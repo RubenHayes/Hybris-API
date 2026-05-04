@@ -21,3 +21,9 @@ values:
   - key: assertJsonSchema
     value: ''
     enabled: true
+  - key: getACartSchema
+    value: ''
+    enabled: true
+  - key: addProductToCartSchema
+    value: ''
+    enabled: true
