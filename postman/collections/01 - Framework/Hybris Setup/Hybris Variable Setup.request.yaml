@@ -1,4 +1,5 @@
 $kind: http-request
+name: Hybris Variable Setup
 url: "{{grocLogin}}"
 method: POST
 headers:
@@ -10,4 +11,8 @@ body:
   content: "{{one1TFA}}"
 auth:
   type: noauth
+scripts:
+  - type: beforeRequest
+    code: //Test Comment
+    language: text/javascript
 order: 1000
