@@ -620,9 +620,9 @@ scripts:
 
       \      \"code\",\r
 
-      \      //\"deliveryAddress\",           ## Causes issues with HC06\r
+      \      //\"deliveryAddress\",            Causes issues with HC06\r
 
-      \      //\"deliveryInstructions\",      ## Causes issues with HC06\r
+      \      //\"deliveryInstructions\",       Causes issues with HC06\r
 
       \      \"driverTip\",\r
 
@@ -634,11 +634,11 @@ scripts:
 
       \      \"guid\",\r
 
-      \      //\"mobileNumber\",              ## Causes issues with HC06\r
+      \      //\"mobileNumber\",               Causes issues with HC06\r
 
       \      \"orderFlowVersion\",\r
 
-      \      //\"pointOfService\",            ## Causes issues with HC06\r
+      \      //\"pointOfService\",             Causes issues with HC06\r
 
       \      \"shoppingBagPreference\",\r
 
@@ -668,13 +668,13 @@ scripts:
 
       \      \"customerSelectedPointOfService\",\r
 
-      \      //\"minimumSpend\",             ## Causes issues with HC06\r
+      \      //\"minimumSpend\",              Causes issues with HC06\r
 
       \      \"minimumSpendMet\",\r
 
       \      \"totalsNotCalculated\"//,\r
 
-      \      //\"valueTowardMinimumSpend\"   ## Causes issues with HC06\r
+      \      //\"valueTowardMinimumSpend\"    Causes issues with HC06\r
 
       \    ],\r
 
