@@ -1,0 +1,200 @@
+$kind: http-request
+name: Create Cart
+url: "{{pnpOne}}/users/current/carts"
+method: POST
+headers:
+  origin: "{{oneOriginHeader}}"
+body:
+  type: text
+  content: "{}"
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: POST /users/current/carts\r
+
+      // Purpose: Creates a new, empty cart for the current user\r
+
+      // Expected status: 201 Created\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      const assertStatus = eval(pm.globals.get(\"assertStatus\"));\r
+
+      assertStatus(201, \"Created\");\r
+
+      \r
+
+      // 🧩 ~~ Schema Validation ~~ 🧩\r
+
+      const assertJsonSchema  = eval(pm.globals.get(\"assertJsonSchema\"));\r
+
+      const createCartSchema  = JSON.parse(pm.globals.get(\"createCartSchema\"));\r
+
+      assertJsonSchema(createCartSchema, \"Create Cart response schema\");\r
+
+      \r
+
+      // Conditional check for further testing\r
+
+      if (pm.response.code === 201) {\r
+
+      \r
+
+      \    // 🧩 ~~ Variable Declarations ~~ 🧩\r
+
+      \    var jsonData                             = pm.response.json();\r
+
+      \    var cartCode                             = jsonData.code;\r
+
+      \    var totalItems                           = jsonData.totalItems;\r
+
+      \    var entries                              = Array.isArray(jsonData.entries) ? jsonData.entries : [];\r
+
+      \    var totalPriceWithTolerancesValue        = jsonData.totalPriceWithTolerances && jsonData.totalPriceWithTolerances.value;\r
+
+      \    var minimumSpendMet                      = jsonData.minimumSpendMet;\r
+
+      \    var guidValue                            = jsonData.guid;\r
+
+      \    var cartSizeEnabled                      = jsonData.cartSizeEnabled || {};\r
+
+      \    var maximumDeliveryItemsQuantity         = cartSizeEnabled.maximumDeliveryItemsQuantity;\r
+
+      \    var warningDeliveryItemsQuantity         = cartSizeEnabled.warningDeliveryItemsQuantity;\r
+
+      \    var maximumDeliveryItemsQuantityExceeded = cartSizeEnabled.maximumDeliveryItemsQuantityExceeded;\r
+
+      \    var warningDeliveryItemsExceeded         = cartSizeEnabled.warningDeliveryItemsExceeded;\r
+
+      \r
+
+      \    // 🧩 ~~ Collection Variable Declarations ~~ 🧩\r
+
+      \    pm.collectionVariables.set(\"cart\", cartCode);\r
+
+      \r
+
+      \    // 🧩 ~~ Functional Tests ~~ 🧩\r
+
+      \    // --- Complementary Functional Tests (schema-like expectations) ---\r
+
+      \    pm.test(\"type is 'cartWsDTO'\", () => {\r
+
+      \        pm.expect(jsonData.type).to.eq(\"cartWsDTO\");\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"cartCode is not empty\", () => {\r
+
+      \        pm.expect(cartCode.length).to.be.greaterThan(0);\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"guid is not empty\", () => {\r
+
+      \        pm.expect(guidValue.length).to.be.greaterThan(0);\r
+
+      \    });\r
+
+      \r
+
+      \    // --- Business Rule Functional Tests ---\r
+
+      \    pm.test(\"totalItems equals entries length\", () => {\r
+
+      \        pm.expect(totalItems).to.eq(entries.length);\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"entries is empty for new cart\", () => {\r
+
+      \        pm.expect(entries.length).to.eq(0);\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"totalPriceWithTolerances is zero for new cart\", () => {\r
+
+      \        pm.expect(totalPriceWithTolerancesValue).to.eq(0);\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"minimumSpendMet is false for new cart\", () => {\r
+
+      \        pm.expect(minimumSpendMet).to.eq(false);\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"maximumDeliveryItemsQuantity is Correct\", () => {\r
+
+      \        //pm.expect(maximumDeliveryItemsQuantity).to.eq(45); ## Want to cater for stores like HC06\r
+
+      \        pm.expect(maximumDeliveryItemsQuantity).to.be.lessThan(46);\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"warningDeliveryItemsQuantity is Correct\", () => {\r
+
+      \        //pm.expect(warningDeliveryItemsQuantity).to.eq(40); // ## Want to cater for stores like HC06\r
+
+      \        pm.expect(warningDeliveryItemsQuantity).to.be.lessThan(41);\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"maximumDeliveryItemsQuantityExceeded is false\", () => {\r
+
+      \        pm.expect(maximumDeliveryItemsQuantityExceeded).to.eq(false);\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"warningDeliveryItemsExceeded is false\", () => {\r
+
+      \        pm.expect(warningDeliveryItemsExceeded).to.eq(false);\r
+
+      \    });\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      } else {\r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(`Response Code - ${pm.response.code}`);\r
+
+      \    console.log(pm.response.text());\r
+
+      }"
+    language: text/javascript
+order: 6000

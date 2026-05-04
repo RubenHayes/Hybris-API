@@ -1,0 +1,484 @@
+$kind: http-request
+url: "{{pnpOne}}/users/current/carts/{{cart}}/fulfilmentSlots?pointOfServiceName={{oneClaremontPOS}}"
+method: GET
+queryParams:
+  pointOfServiceName: "{{oneClaremontPOS}}"
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: GET /users/current/carts/{{cart}}/fulfilmentSlots\r
+
+      // Purpose: Get list of available fulfilment slots and select the earliest available slot code\r
+
+      // Auth: Bearer Token {{accessToken}}\r
+
+      // Expected status: 200 OK\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Test Configuration ~~ 🧩\r
+
+      var runBaselineTests   = pm.collectionVariables.get(\"runBaselineTests\");    // Set to false to skip baseline tests\r
+
+      var runFunctionalTests = pm.collectionVariables.get(\"runFunctionalTests\");  // Set to false to skip functional tests \r
+
+      var environmentFlag    = pm.environment.name;                               // Get the current environment name\r
+
+      \r
+
+      // 🧩 ~~ Strict Schema Toggle ~~ 🧩\r
+
+      // Uncomment the line below to force strict validation ON for this request only\r
+
+      // var strictSchemaValidation = true;\r
+
+      \r
+
+      // Use collection variable (default behavior) - comment this out if you want to override the collection variable value\r
+
+      var strictSchemaValidationRaw = pm.collectionVariables.get(\"strictSchemaValidation\");\r
+
+      var strictSchemaValidation    =\r
+
+      \    strictSchemaValidationRaw === true || strictSchemaValidationRaw === \"true\";\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      pm.test(\"[Carts Controller] Get Fulfilment Slot - Status code is 200\", () => {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"[Carts Controller] Get Fulfilment Slot - Response status is OK\", () => {\r
+
+      \    pm.expect(pm.response.status).to.eq(\"OK\");\r
+
+      });\r
+
+      \r
+
+      // Conditional check for further testing\r
+
+      if (pm.response.code === 200) {\r
+
+      \r
+
+      \    // 🧩 ~~ Variable Declarations ~~ 🧩\r
+
+      \    var jsonData     = pm.response.json();\r
+
+      \    var earliestSlot = jsonData.earliestSlot;\r
+
+      \    var slots        = jsonData.slots;\r
+
+      \r
+
+      \    // Selection logic: choose the earliest available slot as provided by the API\r
+
+      \    var slotCode = null;\r
+
+      \r
+
+      \    // Prefer earliestSlot if it's AVAILABLE and enabled\r
+
+      \    if (\r
+
+      \        earliestSlot &&\r
+
+      \        earliestSlot.status === \"AVAILABLE\" &&\r
+
+      \        earliestSlot.enabled === true\r
+
+      \    ) {\r
+
+      \        slotCode = earliestSlot.slotCode;\r
+
+      \    } else if (Array.isArray(slots)) {\r
+
+      \        // Fallback: find the first AVAILABLE slot in slots (excluding CLOSED)\r
+
+      \        for (var i = 0; i < slots.length; i++) {\r
+
+      \            var slot = slots[i];\r
+
+      \            if (slot.status === \"CLOSED\") {\r
+
+      \                continue;\r
+
+      \            }\r
+
+      \            if (slot.status === \"AVAILABLE\" && slot.slotCode) {\r
+
+      \                slotCode = slot.slotCode;\r
+
+      \                break;\r
+
+      \            }\r
+
+      \        }\r
+
+      \    }\r
+
+      \r
+
+      \    // Persist useful values for downstream requests (earliest slot)\r
+
+      \    if (slotCode) {\r
+
+      \        pm.collectionVariables.set(\"deliverySlot\", slotCode);\r
+
+      \    }\r
+
+      \r
+
+      \    if (runBaselineTests) {\r
+
+      \r
+
+      \        // 🧩 ~~ Schema Definition ~~ 🧩\r
+
+      \        const responseSchema = {\r
+
+      \            type: \"object\",\r
+
+      \            additionalProperties: !strictSchemaValidation,\r
+
+      \            required: [\r
+
+      \                \"earlierIllegalSlotExists\",\r
+
+      \                \"earliestSlot\",\r
+
+      \                \"pointOfServiceName\",\r
+
+      \                \"slots\",\r
+
+      \                \"validUntil\"\r
+
+      \            ],\r
+
+      \            properties: {\r
+
+      \                earlierIllegalSlotExists: { type: \"boolean\" },\r
+
+      \                earliestSlot: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\r
+
+      \                        \"endTime\",\r
+
+      \                        \"status\",\r
+
+      \                        \"slotCode\"\r
+
+      \                    ],\r
+
+      \                    properties: {\r
+
+      \                        enabled:        { type: \"boolean\" },\r
+
+      \                        endTime:        { type: \"string\" },\r
+
+      \                        intervalSpan:   { type: \"number\" },\r
+
+      \                        startTime:      { type: \"string\" },\r
+
+      \                        status:         { type: \"string\" },\r
+
+      \                        slotCode:       { type: \"string\" },\r
+
+      \                        price: {\r
+
+      \                            type: \"object\",\r
+
+      \                            additionalProperties: !strictSchemaValidation,\r
+
+      \                            properties: {\r
+
+      \                                average:            { type: \"boolean\" },\r
+
+      \                                currencyIso:        { type: \"string\" },\r
+
+      \                                formattedValue:     { type: \"string\" },\r
+
+      \                                onlineOnlyPrice:    { type: \"boolean\" },\r
+
+      \                                priceType:          { type: \"string\" },\r
+
+      \                                value:              { type: \"number\" }\r
+
+      \                            }\r
+
+      \                        }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                pointOfServiceName: { type: \"string\" },\r
+
+      \                slots: {\r
+
+      \                    type: \"array\",\r
+
+      \                    items: {\r
+
+      \                        type: \"object\",\r
+
+      \                        additionalProperties: !strictSchemaValidation,\r
+
+      \                        // Some slots are CLOSED and do not contain time/price/slotCode\r
+
+      \                        required: [\r
+
+      \                            \"enabled\",\r
+
+      \                            \"intervalSpan\",\r
+
+      \                            \"status\"\r
+
+      \                        ],\r
+
+      \                        properties: {\r
+
+      \                            enabled:        { type: \"boolean\" },\r
+
+      \                            intervalSpan:   { type: \"number\" },\r
+
+      \                            status:         { type: \"string\" },\r
+
+      \                            endTime:        { type: \"string\" },\r
+
+      \                            startTime:      { type: \"string\" },\r
+
+      \                            slotCode:       { type: \"string\" },\r
+
+      \                            price: {\r
+
+      \                                type: \"object\",\r
+
+      \                                additionalProperties: !strictSchemaValidation,\r
+
+      \                                properties: {\r
+
+      \                                    average:            { type: \"boolean\" },\r
+
+      \                                    currencyIso:        { type: \"string\" },\r
+
+      \                                    formattedValue:     { type: \"string\" },\r
+
+      \                                    onlineOnlyPrice:    { type: \"boolean\" },\r
+
+      \                                    priceType:          { type: \"string\" },\r
+
+      \                                    value:              { type: \"number\" }\r
+
+      \                                }\r
+
+      \                            }\r
+
+      \                        }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                validUntil: { type: \"string\" }\r
+
+      \            }\r
+
+      \        };\r
+
+      \r
+
+      \        // 🧩 ~~ Schema Validation Test ~~ 🧩\r
+
+      \        pm.test(\"[Carts Controller] Get Fulfilment Slot - Response matches schema\", () => {\r
+
+      \            pm.response.to.have.jsonSchema(responseSchema);\r
+
+      \        });\r
+
+      \    }\r
+
+      \r
+
+      \    // 🧩 ~~ Functional Tests ~~ 🧩\r
+
+      \    if (runFunctionalTests) {\r
+
+      \r
+
+      \        // --- Complementary Functional Tests ---\r
+
+      \        pm.test(\"[Carts Controller] Get Fulfilment Slot - Slots list is not empty\", () => {\r
+
+      \            pm.expect(Array.isArray(slots) && slots.length).to.be.greaterThan(0);\r
+
+      \        });\r
+
+      \r
+
+      \        // --- Business Rule Functional Tests ---\r
+
+      \r
+
+      \        // 1) earliestSlot must exist\r
+
+      \        pm.test(\"[Carts Controller] Get Fulfilment Slot - earliestSlot exists\", () => {\r
+
+      \            pm.expect(earliestSlot, \"earliestSlot is missing from response\").to.exist;\r
+
+      \        });\r
+
+      \r
+
+      \        // 2) earliestSlot.status must be AVAILABLE\r
+
+      \        pm.test(\"[Carts Controller] Get Fulfilment Slot - earliestSlot.status is AVAILABLE\", () => {\r
+
+      \            pm.expect(earliestSlot.status).to.eq(\"AVAILABLE\");\r
+
+      \        });\r
+
+      \r
+
+      \        // 3) earliestSlot.enabled must be true\r
+
+      \        pm.test(\"[Carts Controller] Get Fulfilment Slot - earliestSlot.enabled is true\", () => {\r
+
+      \            pm.expect(earliestSlot.enabled).to.eq(true);\r
+
+      \        });\r
+
+      \r
+
+      \        // 4) earliestSlot must match the selected slotCode\r
+
+      \        pm.test(\"[Carts Controller] Get Fulfilment Slot - Selected slotCode matches earliestSlot.slotCode\", () => {\r
+
+      \            pm.expect(slotCode).to.eq(earliestSlot.slotCode);\r
+
+      \        });\r
+
+      \r
+
+      \        // 5) earliestSlot must appear in slots[]\r
+
+      \        pm.test(\"[Carts Controller] Get Fulfilment Slot - earliestSlot exists within slots[] list\", () => {\r
+
+      \            const existsInList = slots.some(s => s.slotCode === earliestSlot.slotCode);\r
+
+      \            pm.expect(existsInList, \"earliestSlot.slotCode not found in slots[] list\").to.be.true;\r
+
+      \        });\r
+
+      \r
+
+      \        // 6) earliestSlot.startTime must NOT be in the past (compared to server UTC time)\r
+
+      \        pm.test(\"[Carts Controller] Get Fulfilment Slot - earliestSlot.startTime is not in the past\", () => {\r
+
+      \            const nowUtc = new Date().toISOString(); // UTC\r
+
+      \            const startUtc = earliestSlot.startTime.replace(\"+0000\", \"Z\");\r
+
+      \            pm.expect(new Date(startUtc) >= new Date(nowUtc),\r
+
+      \                \"earliestSlot.startTime is earlier than now (UTC)\"\r
+
+      \            ).to.be.true;\r
+
+      \        });\r
+
+      \r
+
+      \        // 7) earliestSlot must be the earliest AVAILABLE+enabled slot based on startTime\r
+
+      \        pm.test(\"[Carts Controller] Get Fulfilment Slot - earliestSlot has the earliest startTime among AVAILABLE & enabled slots\", () => {\r
+
+      \r
+
+      \            const toDate = t => new Date(t.replace(\"+0000\", \"Z\"));\r
+
+      \r
+
+      \            const availableEnabledSlots = slots.filter(s =>\r
+
+      \                s.status === \"AVAILABLE\" &&\r
+
+      \                s.enabled === true &&\r
+
+      \                s.startTime\r
+
+      \            );\r
+
+      \r
+
+      \            const sortedByStart = availableEnabledSlots.sort((a, b) =>\r
+
+      \                toDate(a.startTime) - toDate(b.startTime)\r
+
+      \            );\r
+
+      \r
+
+      \            const firstSlot = sortedByStart[0];\r
+
+      \r
+
+      \            pm.expect(earliestSlot.slotCode).to.eq(firstSlot.slotCode);\r
+
+      \        });\r
+
+      \    }    \r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    if (slotCode) {\r
+
+      \        console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      \        console.log(`Earliest slot code set to: ${slotCode}`);\r
+
+      \    } else {\r
+
+      \        console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \        console.log(\"No AVAILABLE earliest slot was found\");\r
+
+      \    }\r
+
+      \r
+
+      } else {\r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(`Response Code - ${pm.response.code}`);\r
+
+      \    console.log(pm.response.text());\r
+
+      }"
+    language: text/javascript
+order: 17000

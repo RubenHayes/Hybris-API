@@ -1,0 +1,483 @@
+$kind: http-request
+url: "{{pnpOne}}/users/current/carts/{{cart}}/entries?code={{oneProduct1}}&qty=5"
+method: POST
+headers:
+  origin: "{{oneOriginHeader}}"
+queryParams:
+  - key: code
+    value: "{{oneProduct1}}"
+  - key: qty
+    value: "5"
+  - key: code
+    value: 000000000000661834_EA
+    disabled: true
+  - key: qty
+    value: "5"
+    disabled: true
+body:
+  type: urlencoded
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: POST /users/current/carts/{{cart}}/entries?code={{oneProduct1}}&qty=5\r
+
+      // Purpose: Adds 5 units of the specified product to the current cart\r
+
+      // Auth: Bearer Token | {{accessToken}}\r
+
+      // Expected status: 200 OK\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Test Configuration ~~ 🧩\r
+
+      var runBaselineTests   = pm.collectionVariables.get(\"runBaselineTests\");    // Set to false to skip baseline tests\r
+
+      var runFunctionalTests = pm.collectionVariables.get(\"runFunctionalTests\");  // Set to false to skip functional tests \r
+
+      var environmentFlag    = pm.environment.name;                               // Get the current environment name\r
+
+      \r
+
+      // 🧩 ~~ Strict Schema Toggle ~~ 🧩\r
+
+      // Uncomment the line below to force strict validation ON for this request only\r
+
+      // var strictSchemaValidation = true;\r
+
+      \r
+
+      // Use collection variable (default behavior) - comment this out if you want to override the collection variable value\r
+
+      var strictSchemaValidationRaw = pm.collectionVariables.get(\"strictSchemaValidation\");\r
+
+      var strictSchemaValidation    =\r
+
+      \    strictSchemaValidationRaw === true || strictSchemaValidationRaw === \"true\";\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      pm.test(\"[Carts Controller] Add Product To Cart - Status code is 200\", () => {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"[Carts Controller] Add Product To Cart - Response status is OK\", () => {\r
+
+      \    pm.expect(pm.response.status).to.eq(\"OK\");\r
+
+      });\r
+
+      \r
+
+      // Conditional check for further testing\r
+
+      if (pm.response.code === 200) {\r
+
+      \r
+
+      \    // 🧩 ~~ Variable Declarations ~~ 🧩\r
+
+      \    var jsonData         = pm.response.json();\r
+
+      \    var entry0           = jsonData.entry;\r
+
+      \    var entry0Quantity   = entry0.quantity;\r
+
+      \    var entry0Price      = entry0.product.price.value;\r
+
+      \    var entry0TotalPrice = entry0.totalPrice && entry0.totalPrice.value;\r
+
+      \    var stock            = entry0.product.stock || {};\r
+
+      \    var stockLevel       = stock.stockLevel;\r
+
+      \    var stockLevelStatus = stock.stockLevelStatus;\r
+
+      \r
+
+      \    // Persist useful values for downstream requests\r
+
+      \    pm.collectionVariables.set(\"entryGuid\", entry0.guid);\r
+
+      \    pm.collectionVariables.set(\"productPrice\", entry0.product.price.value);\r
+
+      \r
+
+      \    if (runBaselineTests) {\r
+
+      \r
+
+      \        // 🧩 ~~ Schema Definition ~~ 🧩\r
+
+      \        // Strict mode toggle (refer to 🧩 ~~ Strict Schema Toggle ~~ 🧩):\r
+
+      \        // strictSchemaValidation = true -> no extra fields allowed\r
+
+      \        // strictSchemaValidation = false -> extra fields allowed\r
+
+      \        const responseSchema = {\r
+
+      \            type: \"object\",\r
+
+      \            additionalProperties: !strictSchemaValidation,\r
+
+      \            required: [\"entry\",\r
+
+      \             \"quantity\",\r
+
+      \             \"quantityAdded\",\r
+
+      \             \"statusCode\"\r
+
+      \            ],\r
+
+      \            properties: {\r
+
+      \                entry: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\r
+
+      \                        \"allowSubstitute\",\r
+
+      \                        \"categoryDisplayGroup\",\r
+
+      \                        \"configurationInfos\",\r
+
+      \                        \"entryNumber\",\r
+
+      \                        \"giveAway\",\r
+
+      \                        \"guid\",\r
+
+      \                        \"product\",\r
+
+      \                        \"quantity\",\r
+
+      \                        \"totalPrice\"\r
+
+      \                    ],\r
+
+      \                    properties: {\r
+
+      \                        allowSubstitute: { type: \"boolean\" },\r
+
+      \                        categoryDisplayGroup: {\r
+
+      \                            type: \"object\",\r
+
+      \                            additionalProperties: !strictSchemaValidation,\r
+
+      \                            required: [\"code\", \"name\"],\r
+
+      \                            properties: {\r
+
+      \                                code:   { type: \"string\" },\r
+
+      \                                name:   { type: \"string\" }\r
+
+      \                            }\r
+
+      \                        },\r
+
+      \                        configurationInfos: {\r
+
+      \                            type: \"array\",\r
+
+      \                            items: {\r
+
+      \                                type: \"object\",\r
+
+      \                                // keep flexible, unknown details\r
+
+      \                                additionalProperties: true\r
+
+      \                            }\r
+
+      \                        },\r
+
+      \                        entryNumber:    { type: \"number\" },\r
+
+      \                        giveAway:       { type: \"boolean\" },\r
+
+      \                        guid:           { type: \"string\" },\r
+
+      \                        product: {\r
+
+      \                            type: \"object\",\r
+
+      \                            additionalProperties: !strictSchemaValidation,\r
+
+      \                            required: [\r
+
+      \                                \"available\",\r
+
+      \                                \"availableForPickup\",\r
+
+      \                                \"baseProduct\",\r
+
+      \                                \"brand\",\r
+
+      \                                \"brandSellerId\",\r
+
+      \                                \"code\",\r
+
+      \                                \"inStockIndicator\",\r
+
+      \                                \"name\",\r
+
+      \                                \"price\",\r
+
+      \                                \"productIdForTracking\",\r
+
+      \                                \"purchasable\",\r
+
+      \                                \"stock\",\r
+
+      \                                \"url\"\r
+
+      \                            ],\r
+
+      \                            properties: {\r
+
+      \                                available:             { type: \"boolean\" },\r
+
+      \                                availableForPickup:    { type: \"boolean\" },\r
+
+      \                                baseProduct:           { type: \"string\" },\r
+
+      \                                brand:                 { type: \"string\" },\r
+
+      \                                brandSellerId:         { type: \"string\" },\r
+
+      \                                code:                  { type: \"string\" },\r
+
+      \                                inStockIndicator:      { type: \"boolean\" },\r
+
+      \                                name:                  { type: \"string\" },\r
+
+      \                                price: {\r
+
+      \                                    type: \"object\",\r
+
+      \                                    additionalProperties: !strictSchemaValidation,\r
+
+      \                                    required: [\"currencyIso\", \"oldPrice\", \"value\"],\r
+
+      \                                    properties: {\r
+
+      \                                        currencyIso:   { type: \"string\" },\r
+
+      \                                        oldPrice:      { type: \"number\" },\r
+
+      \                                        value:         { type: \"number\" }\r
+
+      \                                    }\r
+
+      \                                },\r
+
+      \                                productIdForTracking:  { type: \"string\" },\r
+
+      \                                purchasable:           { type: \"boolean\" },\r
+
+      \                                stock: {\r
+
+      \                                    type: \"object\",\r
+
+      \                                    additionalProperties: !strictSchemaValidation,\r
+
+      \                                    required: [\"stockLevel\", \"stockLevelStatus\"],\r
+
+      \                                    properties: {\r
+
+      \                                        stockLevel:         { type: \"number\" },\r
+
+      \                                        stockLevelStatus:   { type: \"string\" }\r
+
+      \                                    }\r
+
+      \                                },\r
+
+      \                                url: { type: \"string\" }\r
+
+      \                            }\r
+
+      \                        },\r
+
+      \                        quantity: { type: \"number\" },\r
+
+      \                        totalPrice: {\r
+
+      \                            type: \"object\",\r
+
+      \                            additionalProperties: !strictSchemaValidation,\r
+
+      \                            required: [\"currencyIso\", \"oldPrice\", \"value\"],\r
+
+      \                            properties: {\r
+
+      \                                currencyIso:   { type: \"string\" },\r
+
+      \                                oldPrice:      { type: \"number\" },\r
+
+      \                                value:         { type: \"number\" }\r
+
+      \                            }\r
+
+      \                        }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                quantity: {\r
+
+      \                    type: \"number\"\r
+
+      \                },\r
+
+      \                quantityAdded: {\r
+
+      \                    type: \"number\"\r
+
+      \                },\r
+
+      \                statusCode: {\r
+
+      \                    type: \"string\"\r
+
+      \                }\r
+
+      \            }\r
+
+      \        };\r
+
+      \r
+
+      \        // 🧩 ~~ Schema Validation Test ~~ 🧩\r
+
+      \        pm.test(\"[Carts Controller] Add Product To Cart - Response matches schema\", () => {\r
+
+      \            pm.response.to.have.jsonSchema(responseSchema);\r
+
+      \        });\r
+
+      \    }\r
+
+      \r
+
+      \    // 🧩 ~~ Functional Tests ~~ 🧩\r
+
+      \    if (runFunctionalTests) {\r
+
+      \r
+
+      \        // --- Complementary Functional Tests (schema-like expectations) ---\r
+
+      \        pm.test(\"[Carts Controller] Add Product To Cart - statusCode is 'success'\", () => {\r
+
+      \            pm.expect(jsonData.statusCode).to.eq(\"success\");\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Carts Controller] Add Product To Cart - Product quantity on entry is 5\", () => {\r
+
+      \            pm.expect(entry0Quantity).to.eq(5);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Carts Controller] Add Product To Cart - Requested quantity is 5\", () => {\r
+
+      \            pm.expect(jsonData.quantity).to.eq(5);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Carts Controller] Add Product To Cart - quantityAdded is 5\", () => {\r
+
+      \            pm.expect(jsonData.quantityAdded).to.eq(5);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Carts Controller] Add Product To Cart - entryGuid is not empty\", () => {\r
+
+      \            pm.expect(entry0.guid.length).to.be.greaterThan(0);\r
+
+      \        });\r
+
+      \r
+
+      \        // --- Business Rule Functional Tests ---\r
+
+      \        pm.test(\"[Carts Controller] Add Product To Cart - stockLevel is not 0\", () => {\r
+
+      \            pm.expect(stockLevel).not.to.eql(0);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Carts Controller] Add Product To Cart - stockLevelStatus is 'inStock'\", () => {\r
+
+      \            pm.expect(stockLevelStatus).to.eq(\"inStock\");\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Carts Controller] Add Product To Cart - First entry total price is correct\", () => {\r
+
+      \            var expectedTotal = entry0Quantity * entry0Price;\r
+
+      \            expectedTotal = Number(expectedTotal.toFixed(2)); // round to 2 decimals\r
+
+      \            pm.expect(Number(entry0TotalPrice)).to.eql(expectedTotal);\r
+
+      \        });\r
+
+      \    }\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      \r
+
+      } else {\r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(`Response Code - ${pm.response.code}`);\r
+
+      \    console.log(pm.response.text());\r
+
+      }"
+    language: text/javascript
+order: 11000

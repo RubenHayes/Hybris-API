@@ -1,0 +1,236 @@
+$kind: http-request
+url: "{{pnpOne}}/users/current/carts/{{cart}}/fulfilmentoptions"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: GET /users/current/carts/{{cart}}/fulfilmentoptions\r
+
+      // Purpose: Retrieves fulfilment options for the current cart\r
+
+      // Auth: Bearer Token {{accessToken}}\r
+
+      // Expected status: 200 OK\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Test Configuration ~~ 🧩\r
+
+      var runBaselineTests   = pm.collectionVariables.get(\"runBaselineTests\");    // Set to false to skip baseline tests\r
+
+      var runFunctionalTests = pm.collectionVariables.get(\"runFunctionalTests\");  // Set to false to skip functional tests \r
+
+      var environmentFlag    = pm.environment.name;                               // Get the current environment name\r
+
+      \r
+
+      // 🧩 ~~ Strict Schema Toggle ~~ 🧩\r
+
+      // Uncomment the line below to force strict validation ON for this request only\r
+
+      var strictSchemaValidation = true;\r
+
+      \r
+
+      // Use collection variable (default behavior) - comment this out if you want to override the collection variable value\r
+
+      //var strictSchemaValidationRaw = pm.collectionVariables.get(\"strictSchemaValidation\");\r
+
+      //var strictSchemaValidation    =\r
+
+      //    strictSchemaValidationRaw === true || strictSchemaValidationRaw === \"true\";\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      pm.test(\"[Carts Controller] Get Fulfilment Options - Status code is 200\", () => {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"[Carts Controller] Get Fulfilment Options - Response status is OK\", () => {\r
+
+      \    pm.expect(pm.response.status).to.eq(\"OK\");\r
+
+      });\r
+
+      \r
+
+      // Conditional check for further testing\r
+
+      if (pm.response.code === 200) {\r
+
+      \    // 🧩 ~~ Variable Declarations ~~ 🧩\r
+
+      \    var jsonData = pm.response.json();\r
+
+      \    var standard = jsonData.fulfilmentOptions?.[0];\r
+
+      \    var saver    = jsonData.fulfilmentOptions?.[1]\r
+
+      \r
+
+      \    // Persist useful values for downstream requests\r
+
+      \    if (standard && standard.code) {pm.environment.set(\"oneStandard\", standard.code);}\r
+
+      \    if (saver && saver.code) {pm.environment.set(\"oneSaver\", saver.code);}\r
+
+      \r
+
+      \r
+
+      \    if (runBaselineTests) {\r
+
+      \        // 🧩 ~~ Schema Definition ~~ 🧩\r
+
+      \        // Strict mode toggle (refer to 🧩 ~~ Strict Schema Toggle ~~ 🧩):\r
+
+      \        // strictSchemaValidation = true -> no extra fields allowed\r
+
+      \        // strictSchemaValidation = false -> extra fields allowed\r
+
+      \        const responseSchema = {\r
+
+      \            type: \"object\",\r
+
+      \            additionalProperties: !strictSchemaValidation,\r
+
+      \            required: [\"fulfilmentOptions\"],\r
+
+      \            properties: {\r
+
+      \                fulfilmentOptions: {\r
+
+      \                    type: \"array\",\r
+
+      \                    items: {\r
+
+      \                        type: \"object\",\r
+
+      \                        additionalProperties: !strictSchemaValidation,\r
+
+      \                        required: [\r
+
+      \                            \"code\", \r
+
+      \                            \"description\",\r
+
+      \                            \"displayName\",\r
+
+      \                            \"pk\"\r
+
+      \                        ],\r
+
+      \                        properties: {\r
+
+      \                            code:          { type: \"string\" },\r
+
+      \                            displayName:   { type: \"string\" },\r
+
+      \                            description:   { type: \"string\" },\r
+
+      \                            pk:            { type: \"string\" }\r
+
+      \                        }\r
+
+      \                    }\r
+
+      \                }\r
+
+      \            }\r
+
+      \        };\r
+
+      \r
+
+      \        // 🧩 ~~ Schema Validation Test ~~ 🧩\r
+
+      \        pm.test(\"[Carts Controller] Get Fulfilment Options - Response matches schema\", () => {\r
+
+      \            pm.response.to.have.jsonSchema(responseSchema);\r
+
+      \        });\r
+
+      \    }\r
+
+      \r
+
+      \    // 🧩 ~~ Functional Tests ~~ 🧩\r
+
+      \    if (runFunctionalTests) {\r
+
+      \        // --- Complementary Functional Tests (schema-like expectations) ---\r
+
+      \        pm.test(\"[Carts Controller] Get Fulfilment Options - fulfilmentOptions list is not empty\", () => {\r
+
+      \            pm.expect(jsonData.fulfilmentOptions.length).to.be.greaterThan(0);\r
+
+      \        });\r
+
+      \r
+
+      \        // --- Business Rule Functional Tests ---\r
+
+      \        pm.test(\"[Carts Controller] Get Fulfilment Options - Standard option code is correct\", () => {\r
+
+      \            pm.expect(standard.code).to.eq(\"Standard APP\");\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Carts Controller] Get Fulfilment Options - Standard option description is correct\", () => {\r
+
+      \            pm.expect(standard.description).to.eq(\"Standard delivery\");\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Carts Controller] Get Fulfilment Options - Standard option displayName is correct\", () => {\r
+
+      \            pm.expect(standard.displayName).to.eq(\"Standard\");\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Carts Controller] Get Fulfilment Options - Standard option pk is correct\", () => {\r
+
+      \            pm.expect(standard.pk).to.eq(\"8796519064147\");\r
+
+      \        });\r
+
+      \    }\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      } else {\r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(`Response Code - ${pm.response.code}`);\r
+
+      \    console.log(pm.response.text());\r
+
+      }"
+    language: text/javascript
+order: 14000

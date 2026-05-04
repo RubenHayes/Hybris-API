@@ -1,0 +1,177 @@
+$kind: collection
+variables:
+  - key: runBaselineTests
+    value: "true"
+    secret: false
+  - key: runFieldDefinitionTests
+    value: "true"
+    secret: false
+  - key: runDatatypeTests
+    value: "true"
+    secret: false
+  - key: runFunctionalTests
+    value: "true"
+    secret: false
+  - key: strictSchemaValidation
+    value: "false"
+    secret: false
+  - key: accessToken
+    value: ""
+    secret: false
+  - key: cart
+    value: ""
+    secret: false
+  - key: deliveryAddress
+    value: ""
+    secret: false
+  - key: productUID
+    value: ""
+    secret: false
+  - key: productPrice
+    value: ""
+    secret: false
+  - key: futureSlot
+    value: ""
+    secret: false
+  - key: deliverySlot
+    value: ""
+    secret: false
+  - key: nextAvailableSlot
+    value: ""
+    secret: false
+  - key: totalPrice
+    value: ""
+    secret: false
+  - key: card
+    value: ""
+    secret: false
+  - key: paymentId
+    value: ""
+    secret: false
+  - key: paymentIntentionsCode
+    value: ""
+    secret: false
+  - key: hybOrderId
+    value: ""
+    secret: false
+  - key: hybOrderGuid
+    value: ""
+    secret: false
+  - key: maxRetriesCount
+    value: "3"
+    secret: false
+  - key: currentRetryCount
+    value: "1"
+    secret: false
+  - key: retryDelayTime
+    value: "30000"
+    secret: false
+  - key: maxRetriesCountPending
+    value: "3"
+    secret: false
+  - key: currentRetryCountPending
+    value: "1"
+    secret: false
+  - key: retryDelayTimePending
+    value: "30000"
+    secret: false
+  - key: bottlesUserName
+    value: OFAutomation
+    secret: false
+  - key: bottlesPassword
+    value: 43Buq6PdrHlLYrpU
+    secret: false
+  - key: bearerToken
+    value: ""
+    secret: false
+  - key: UN
+    value: ""
+    secret: false
+  - key: PW
+    value: ""
+    secret: false
+  - key: storeCode
+    value: ""
+    secret: false
+  - key: storeUID
+    value: ""
+    secret: false
+  - key: pickerUID
+    value: ""
+    secret: false
+  - key: pnpOneOrderNumber
+    value: ""
+    secret: false
+  - key: pickingStartTime
+    value: ""
+    secret: false
+  - key: orderIdTest
+    value: ""
+    secret: false
+  - key: channelIdTest
+    value: ""
+    secret: false
+  - key: orderToCancel
+    value: ""
+    secret: false
+  - key: orderId
+    value: ""
+    secret: false
+  - key: channelId
+    value: "1"
+    secret: false
+  - key: isHistory
+    value: ""
+    secret: false
+  - key: labelQty
+    value: ""
+    secret: false
+  - key: santaApiKey
+    value: ""
+    secret: false
+  - key: delivaryRequestId
+    value: ""
+    secret: false
+  - key: externalOrderId
+    value: ""
+    secret: false
+  - key: selectedDeliveryAddressId
+    value: ""
+    secret: false
+  - key: entryGuid
+    value: ""
+    secret: false
+  - key: paymentIntentionCode
+    value: ""
+    secret: false
+  - key: paymentExecutionCode
+    value: ""
+    secret: false
+  - key: executionCode
+    value: ""
+    secret: false
+  - key: agentAccessToken
+    value: ""
+    secret: false
+  - key: agentClientId
+    value: PICKNPACK
+    secret: false
+  - key: agentSecret
+    value: Password1
+    secret: false
+  - key: orderGuid
+    value: ""
+    secret: false
+  - key: orderIdToCancel
+    value: ""
+    secret: false
+  - key: total_price_confirm
+    value: ""
+    secret: false
+  - key: smartShopperCode
+    value: ""
+    secret: false
+  - key: SCHEMA VARIABLES
+    value: ""
+    disabled: true
+    secret: false

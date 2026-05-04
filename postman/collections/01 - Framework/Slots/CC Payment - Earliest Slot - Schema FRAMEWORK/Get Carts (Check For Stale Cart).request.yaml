@@ -1,0 +1,98 @@
+$kind: http-request
+url: "{{pnpOne}}/users/current/carts?refreshCart=false&fields=BASIC"
+method: GET
+queryParams:
+  refreshCart: "false"
+  fields: BASIC
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: GET /users/current/carts\r
+
+      // Purpose: Check if the user already has a cart (StaleCart)\r
+
+      // Expected status: 200 OK\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      const assertStatus = eval(pm.globals.get(\"assertStatus\"));\r
+
+      assertStatus(200, \"OK\");\r
+
+      \r
+
+      // Conditional check for further logic\r
+
+      if (pm.response.code === 200) {\r
+
+      \r
+
+      \    // 🧩 ~~ Variable Declarations ~~ 🧩\r
+
+      \    var jsonData = pm.response.json();\r
+
+      \    var hasStaleCart = Array.isArray(jsonData.carts) && jsonData.carts.length > 0;\r
+
+      \r
+
+      \    // 🧩 ~~ Stale Cart Handling Logic ~~ 🧩\r
+
+      \    if (hasStaleCart) {\r
+
+      \        // Stale cart found - use the first cart's code\r
+
+      \        var cartId = jsonData.carts[0].code;\r
+
+      \        pm.collectionVariables.set(\"cart\", cartId); // Set the stale cart ID as a collection variable\r
+
+      \r
+
+      \        pm.execution.setNextRequest(\"Delete Cart\");\r
+
+      \r
+
+      \        console.log(`Stale cart was found with ID: ${cartId} - Next request will be to delete it. Next request: Delete Cart`);\r
+
+      \    } else {\r
+
+      \        // No stale cart found - go straight to create cart\r
+
+      \        pm.execution.setNextRequest(\"Create Cart\");\r
+
+      \r
+
+      \        console.log(\"No stale cart was found - Next request will be to create a new cart. Next request: Create Cart\");\r
+
+      \    }\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      } else {\r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(`Reponse Code - ${pm.response.code}`); // Log response code to console if request fails to aid debugging\r
+
+      \    console.log(pm.response.text());                  // Log response body to console if request fails to aid debugging\r
+
+      }"
+    language: text/javascript
+  - type: beforeRequest
+    code: setTimeout(function(){}, 1000);
+    language: text/javascript
+order: 4000

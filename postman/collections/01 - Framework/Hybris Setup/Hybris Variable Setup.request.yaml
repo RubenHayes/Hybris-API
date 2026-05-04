@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{grocLogin}}"
+method: POST
+headers:
+  Content-Type: application/x-www-form-urlencoded
+  Authorization: "{{oneLoginAuth}}"
+  Accept: "*/*"
+body:
+  type: text
+  content: "{{one1TFA}}"
+auth:
+  type: noauth
+order: 1000

@@ -1,0 +1,671 @@
+$kind: http-request
+url: "{{pnpOne}}/users/current/carts/{{cart}}?refreshCart=true&fields=FULL"
+method: GET
+headers:
+  - key: referer
+    value: https://hyb.dev.pnpapi.co.za/checkout/payment-details
+    disabled: true
+  - key: accept
+    value: application/json, text/plain, */*
+    disabled: true
+queryParams:
+  - key: fields
+    value: carts(BASIC,purchaseOrderNumber,appliedOrderPromotions,appliedProductPromotions,fulfilmentOption,appliedVouchers)
+    disabled: true
+  - key: refreshCart
+    value: "true"
+  - key: fields
+    value: FULL
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: GET /users/current/carts/{{cart}}?refreshCart=true&fields=FULL\r
+
+      // Purpose: Retrieves the full cart details and validates the total price for the current cart\r
+
+      // Auth: Bearer Token | {{accessToken}}\r
+
+      // Expected status: 200 OK\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Test Configuration ~~ 🧩\r
+
+      var runBaselineTests   = pm.collectionVariables.get(\"runBaselineTests\");    // Set to false to skip baseline tests\r
+
+      var runFunctionalTests = pm.collectionVariables.get(\"runFunctionalTests\");  // Set to false to skip functional tests \r
+
+      var environmentFlag    = pm.environment.name;                               // Get the current environment name\r
+
+      \r
+
+      // 🧩 ~~ Strict Schema Toggle ~~ 🧩\r
+
+      // Uncomment the line below to force strict validation ON for this request only\r
+
+      // var strictSchemaValidation = true;\r
+
+      \r
+
+      // Use collection variable (default behavior) - comment this out if you want to override the collection variable value\r
+
+      var strictSchemaValidationRaw = pm.collectionVariables.get(\"strictSchemaValidation\");\r
+
+      var strictSchemaValidation    =\r
+
+      \    strictSchemaValidationRaw === true || strictSchemaValidationRaw === \"true\";\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      pm.test(\"[Carts Controller] Get Total Cart Price - Status code is 200\", () => {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"[Carts Controller] Get Total Cart Price - Response status is OK\", () => {\r
+
+      \    pm.expect(pm.response.status).to.eq(\"OK\");\r
+
+      });\r
+
+      \r
+
+      // Conditional check for further testing\r
+
+      if (pm.response.code === 200) {\r
+
+      \r
+
+      \    // 🧩 ~~ Variable Declarations ~~ 🧩\r
+
+      \    var jsonData                 = pm.response.json();\r
+
+      \    var baseStore                = jsonData.baseStore || {};\r
+
+      \    var entries                  = jsonData.entries || [];\r
+
+      \    var totalItems               = jsonData.totalItems;\r
+
+      \    var totalPrice               = jsonData.totalPrice || {};\r
+
+      \    var totalPriceWithTax        = jsonData.totalPriceWithTax || {};\r
+
+      \    var totalPriceWithTip        = jsonData.totalPriceWithTaxAndDriverTip || {};\r
+
+      \    var totalPriceWithTolerances = jsonData.totalPriceWithTolerances || {};\r
+
+      \    var subTotal                 = jsonData.subTotal || {};\r
+
+      \    var deliveryCost             = jsonData.deliveryCost || {};\r
+
+      \    var summary                  = jsonData.summary || {};\r
+
+      \    var minimumSpend             = jsonData.minimumSpend || {};\r
+
+      \    var valueTowardMinimumSpend  = jsonData.valueTowardMinimumSpend || {};\r
+
+      \    var minimumSpendMet          = jsonData.minimumSpendMet;\r
+
+      \    var totalTolerance           = jsonData.totalTolerance || {};\r
+
+      \    var deliveryAddress          = pm.collectionVariables.get(\"selectedDeliveryAddressId\") \r
+
+      \    console.log(deliveryAddress)\r
+
+      \r
+
+      \    // Persist useful values for downstream requests (cart total INCLUDING tolerance)\r
+
+      \    if (typeof totalPriceWithTolerances.value === \"number\") {\r
+
+      \        pm.collectionVariables.set(\"totalPrice\", totalPriceWithTolerances.value);\r
+
+      \    }\r
+
+      \r
+
+      \    if (runBaselineTests) {\r
+
+      \r
+
+      \        // 🧩 ~~ Schema Definition ~~ 🧩\r
+
+      \        // Partial schema focusing on key structures to keep it maintainable for FULL response\r
+
+      \        const responseSchema = {\r
+
+      \            type: \"object\",\r
+
+      \            additionalProperties: !strictSchemaValidation,\r
+
+      \            required: [\r
+
+      \                \"type\",\r
+
+      \                \"code\",\r
+
+      \                \"entries\",\r
+
+      \                \"summary\",\r
+
+      \                \"totalItems\",\r
+
+      \                \"totalPrice\",\r
+
+      \                \"totalPriceWithTax\",\r
+
+      \                \"totalPriceWithTaxAndDriverTip\",\r
+
+      \                \"totalPriceWithTolerances\",\r
+
+      \                \"subTotal\",\r
+
+      \                \"deliveryCost\",\r
+
+      \                \"minimumSpend\",\r
+
+      \                \"minimumSpendMet\",\r
+
+      \                \"valueTowardMinimumSpend\",\r
+
+      \                \"totalTolerance\"\r
+
+      \            ],\r
+
+      \            properties: {\r
+
+      \                type: { type: \"string\" },\r
+
+      \                code: { type: \"string\" },\r
+
+      \                entries: {\r
+
+      \                    type: \"array\",\r
+
+      \                    items: {\r
+
+      \                        type: \"object\",\r
+
+      \                        additionalProperties: !strictSchemaValidation,\r
+
+      \                        required: [\"entryNumber\", \"quantity\", \"totalPrice\", \"product\"],\r
+
+      \                        properties: {\r
+
+      \                            entryNumber: { type: \"number\" },\r
+
+      \                            quantity:    { type: \"number\" },\r
+
+      \                            totalPrice: {\r
+
+      \                                type: \"object\",\r
+
+      \                                additionalProperties: !strictSchemaValidation,\r
+
+      \                                required: [\"currencyIso\", \"value\"],\r
+
+      \                                properties: {\r
+
+      \                                    currencyIso: { type: \"string\" },\r
+
+      \                                    value:       { type: \"number\" }\r
+
+      \                                }\r
+
+      \                            },\r
+
+      \                            product: {\r
+
+      \                                type: \"object\",\r
+
+      \                                additionalProperties: !strictSchemaValidation,\r
+
+      \                                required: [\"code\", \"name\"],\r
+
+      \                                properties: {\r
+
+      \                                    code: { type: \"string\" },\r
+
+      \                                    name: { type: \"string\" }\r
+
+      \                                }\r
+
+      \                            }\r
+
+      \                        }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                totalPrice: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\"currencyIso\", \"value\"],\r
+
+      \                    properties: {\r
+
+      \                        currencyIso: { type: \"string\" },\r
+
+      \                        value:       { type: \"number\" }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                totalPriceWithTax: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\"currencyIso\", \"value\"],\r
+
+      \                    properties: {\r
+
+      \                        currencyIso: { type: \"string\" },\r
+
+      \                        value:       { type: \"number\" }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                totalPriceWithTaxAndDriverTip: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\"currencyIso\", \"value\"],\r
+
+      \                    properties: {\r
+
+      \                        currencyIso: { type: \"string\" },\r
+
+      \                        value:       { type: \"number\" }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                totalPriceWithTolerances: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\"currencyIso\", \"formattedValue\", \"value\"],\r
+
+      \                    properties: {\r
+
+      \                        currencyIso:    { type: \"string\" },\r
+
+      \                        formattedValue: { type: \"string\" },\r
+
+      \                        value:          { type: \"number\" }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                subTotal: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\"currencyIso\", \"value\"],\r
+
+      \                    properties: {\r
+
+      \                        currencyIso: { type: \"string\" },\r
+
+      \                        value:       { type: \"number\" }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                deliveryCost: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\"currencyIso\", \"value\"],\r
+
+      \                    properties: {\r
+
+      \                        currencyIso: { type: \"string\" },\r
+
+      \                        value:       { type: \"number\" }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                summary: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\"summaryBreakdown\", \"totals\"],\r
+
+      \                    properties: {\r
+
+      \                        summaryBreakdown: {\r
+
+      \                            type: \"array\",\r
+
+      \                            items: {\r
+
+      \                                type: \"object\",\r
+
+      \                                additionalProperties: !strictSchemaValidation,\r
+
+      \                                required: [\"name\", \"value\", \"formattedValue\"],\r
+
+      \                                properties: {\r
+
+      \                                    name:           { type: \"string\" },\r
+
+      \                                    value:          { type: \"number\" },\r
+
+      \                                    formattedValue: { type: \"string\" }\r
+
+      \                                }\r
+
+      \                            }\r
+
+      \                        },\r
+
+      \                        totals: {\r
+
+      \                            type: \"object\",\r
+
+      \                            additionalProperties: !strictSchemaValidation,\r
+
+      \                            required: [\"cartTotal\", \"total\"],\r
+
+      \                            properties: {\r
+
+      \                                cartTotal: {\r
+
+      \                                    type: \"object\",\r
+
+      \                                    additionalProperties: !strictSchemaValidation,\r
+
+      \                                    required: [\"value\"],\r
+
+      \                                    properties: {\r
+
+      \                                        value: { type: \"number\" }\r
+
+      \                                    }\r
+
+      \                                },\r
+
+      \                                total: {\r
+
+      \                                    type: \"object\",\r
+
+      \                                    additionalProperties: !strictSchemaValidation,\r
+
+      \                                    required: [\"value\"],\r
+
+      \                                    properties: {\r
+
+      \                                        value: { type: \"number\" }\r
+
+      \                                    }\r
+
+      \                                }\r
+
+      \                            }\r
+
+      \                        }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                minimumSpend: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\"currencyIso\", \"value\"],\r
+
+      \                    properties: {\r
+
+      \                        currencyIso: { type: \"string\" },\r
+
+      \                        value:       { type: \"number\" }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                valueTowardMinimumSpend: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\"currencyIso\", \"value\"],\r
+
+      \                    properties: {\r
+
+      \                        currencyIso: { type: \"string\" },\r
+
+      \                        value:       { type: \"number\" }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                minimumSpendMet: { type: \"boolean\" },\r
+
+      \                totalTolerance: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\"currencyIso\", \"formattedValue\", \"value\"],\r
+
+      \                    properties: {\r
+
+      \                        currencyIso:    { type: \"string\" },\r
+
+      \                        formattedValue: { type: \"string\" },\r
+
+      \                        value:          { type: \"number\" }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                totalItems: { type: \"number\" }\r
+
+      \            }\r
+
+      \        };\r
+
+      \r
+
+      \        // 🧩 ~~ Schema Validation Test ~~ 🧩\r
+
+      \        pm.test(\"[Carts Controller] Get Total Cart Price - Response matches schema\", () => {\r
+
+      \            pm.response.to.have.jsonSchema(responseSchema);\r
+
+      \        });\r
+
+      \    }\r
+
+      \r
+
+      \    // 🧩 ~~ Functional Tests ~~ 🧩\r
+
+      \    if (runFunctionalTests) {\r
+
+      \r
+
+      \        // --- Complementary Functional Tests ---\r
+
+      \        pm.test(\"[Carts Controller] Get Total Cart Price - entries list is not empty\", () => {\r
+
+      \            pm.expect(entries.length).to.be.greaterThan(0);\r
+
+      \        });\r
+
+      \r
+
+      \        // --- Business Rule Functional Tests ---\r
+
+      \        pm.test(\"[Carts Controller] Get Total Cart Price - totalPrice equals subTotal plus deliveryCost\", () => {\r
+
+      \            var expectedTotal = Number(subTotal.value) + Number(deliveryCost.value);\r
+
+      \            pm.expect(totalPrice.value).to.eq(expectedTotal);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Carts Controller] Get Total Cart Price - totalPriceWithTolerances equals totalPrice plus totalTolerance\", () => {\r
+
+      \            var expectedTotalWithTol = Number(totalPrice.value) + Number(totalTolerance.value);\r
+
+      \            pm.expect(totalPriceWithTolerances.value).to.eq(expectedTotalWithTol);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Carts Controller] Get Total Cart Price - summary total equals totalPriceWithTolerances\", () => {\r
+
+      \            var summaryTotalValue = summary.totals && summary.totals.total && summary.totals.total.value;\r
+
+      \            pm.expect(summaryTotalValue).to.eq(totalPriceWithTolerances.value);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Carts Controller] Get Total Cart Price - totalPrice equals totalPriceWithTax\", () => {\r
+
+      \            pm.expect(totalPrice.value).to.eq(totalPriceWithTax.value);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Carts Controller] Get Total Cart Price - totalPriceWithTax equals totalPriceWithTaxAndDriverTip\", () => {\r
+
+      \            pm.expect(totalPriceWithTax.value).to.eq(totalPriceWithTip.value);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Carts Controller] Get Total Cart Price - valueTowardMinimumSpend matches subTotal\", () => {\r
+
+      \            pm.expect(valueTowardMinimumSpend.value).to.eq(subTotal.value);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Carts Controller] Get Total Cart Price - minimumSpendMet is true\", () => {\r
+
+      \            pm.expect(minimumSpendMet).to.eq(true);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Carts Controller] Get Total Cart Price - Type field is correct\", () => {\r
+
+      \            pm.expect(jsonData.type).to.eq(\"cartWsDTO\");\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Carts Controller] Get Total Cart Price - Base store info is correct\", () => {\r
+
+      \            pm.expect(baseStore.displayName).to.eq(\"Test Claremont \");\r
+
+      \            pm.expect(baseStore.name).to.eq(\"WC18 Claremont\");\r
+
+      \            pm.expect(baseStore.uid).to.eq(\"WC18\");    \r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Carts Controller] Get Total Cart Price - Cart has been calculated\", () => {\r
+
+      \            pm.expect(jsonData.calculated).to.be.true;  \r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Carts Controller] Get Total Cart Price - Delivery instructions are correct\", () => {\r
+
+      \            pm.expect(jsonData.deliveryInstructions).to.eq(\"I want it delivered today asap\\n\");  \r
+
+      \        });\r
+
+      \        \r
+
+      \        pm.test(\"[Carts Controller] Get Total Cart Price - Delivery address is correct\", () => {\r
+
+      \            pm.expect(jsonData.deliveryAddress.id).to.eq(deliveryAddress);  \r
+
+      \        });\r
+
+      \    }\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      }\r
+
+      else {\r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(`Response Code - ${pm.response.code}`);\r
+
+      \    console.log(pm.response.text());\r
+
+      }\r\n"
+    language: text/javascript
+order: 19000

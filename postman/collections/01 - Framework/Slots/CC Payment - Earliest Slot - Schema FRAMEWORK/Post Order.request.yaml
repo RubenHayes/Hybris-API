@@ -1,0 +1,694 @@
+$kind: http-request
+url: "{{pnpOne}}/users/current/orders?cartId={{cart}}&fields=FULL&termsChecked=true"
+method: POST
+headers:
+  origin: "{{groceriesOriginHeader}}"
+queryParams:
+  cartId: "{{cart}}"
+  fields: FULL
+  termsChecked: "true"
+body:
+  type: urlencoded
+  content:
+    "{}": ""
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: "// ===========================================\r
+
+      // Request: POST /users/current/orders\r
+
+      // Purpose: Places an order for the current cart and returns the created order details\r
+
+      // Auth: Bearer Token {{accessToken}}\r
+
+      // Expected status: 201 Created\r
+
+      // ===========================================\r
+
+      \r
+
+      // 🧩 ~~ Test Configuration ~~ 🧩\r
+
+      var runBaselineTests   = pm.collectionVariables.get(\"runBaselineTests\");    // Set to false to skip baseline tests\r
+
+      var runFunctionalTests = pm.collectionVariables.get(\"runFunctionalTests\");  // Set to false to skip functional tests \r
+
+      var environmentFlag    = pm.environment.name;                               // Get the current environment name\r
+
+      \r
+
+      // 🧩 ~~ Strict Schema Toggle ~~ 🧩\r
+
+      // Uncomment the line below to force strict validation ON for this request only\r
+
+      // var strictSchemaValidation = true;\r
+
+      \r
+
+      // Use collection variable (default behavior) - comment this out if you want to override the collection variable value\r
+
+      var strictSchemaValidationRaw = pm.collectionVariables.get(\"strictSchemaValidation\");\r
+
+      var strictSchemaValidation    =\r
+
+      \    strictSchemaValidationRaw === true || strictSchemaValidationRaw === \"true\";\r
+
+      \r
+
+      // 🧩 ~~ Generic Uptime Tests ~~ 🧩\r
+
+      pm.test(\"[Orders Controller] Post Order - Status code is 201\", () => {\r
+
+      \    pm.response.to.have.status(201);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"[Orders Controller] Post Order - Response status is Created\", () => {\r
+
+      \    pm.expect(pm.response.status).to.eq(\"Created\");\r
+
+      });\r
+
+      \r
+
+      // Conditional check for further testing\r
+
+      if (pm.response.code === 201) {\r
+
+      \r
+
+      \    // 🧩 ~~ Variable Declarations ~~ 🧩\r
+
+      \    var jsonData                 = pm.response.json();\r
+
+      \    var orderId                  = jsonData.code;\r
+
+      \    var orderGuid                = jsonData.guid;\r
+
+      \    var entries                  = jsonData.entries || [];\r
+
+      \    var firstEntry               = entries[0] || {};\r
+
+      \    var totalPriceWithTolerances = jsonData.totalPriceWithTolerances || {};\r
+
+      \    var subTotal                 = jsonData.subTotal || {};\r
+
+      \    var deliveryCost             = jsonData.deliveryCost || {};\r
+
+      \    var toleranceValue           = jsonData.totalTolerance?.value || 0;\r
+
+      \    var summary                  = jsonData.summary || {};\r
+
+      \    var paymentPlan              = jsonData.paymentPlan || {};\r
+
+      \    var amountPaidTotal          = (paymentPlan.amountPaid && paymentPlan.amountPaid.total) || {};\r
+
+      \    var paymentIntentions        = paymentPlan.paymentIntentions || [];\r
+
+      \    var firstIntention           = paymentIntentions[0] || {};\r
+
+      \    var firstExecution           = firstIntention.execution || {};\r
+
+      \    var pnpPaymentInfo           = jsonData.pnpPaymentInfo || {};\r
+
+      \    var fulfilmentOption         = jsonData.fulfilmentOption || {};\r
+
+      \    var totalItems               = jsonData.totalItems;\r
+
+      \    var purchaseOrderNumber      = jsonData.purchaseOrderNumber;\r
+
+      \    var storedTotalPrice         = Number(pm.collectionVariables.get(\"totalPrice\"));\r
+
+      \    var paymentExecutionCode     = pm.collectionVariables.get(\"paymentExecutionCode\");\r
+
+      \    var storedCardId             = pm.collectionVariables.get(\"card\");\r
+
+      \    var storedPaymentId          = pm.collectionVariables.get(\"paymentId\");\r
+
+      \r
+
+      \    // Persist useful values for downstream / reporting if needed\r
+
+      \    if (orderId) {\r
+
+      \        pm.collectionVariables.set(\"hybOrderId\", orderId);\r
+
+      \        pm.collectionVariables.set(\"hybOrderGuid\", orderGuid);         \r
+
+      \    }\r
+
+      \r
+
+      \    if (runBaselineTests) {\r
+
+      \r
+
+      \        // 🧩 ~~ Schema Definition ~~ 🧩\r
+
+      \        // Note: light/partial schema to keep it maintainable for FULL responses\r
+
+      \        const responseSchema = {\r
+
+      \            type: \"object\",\r
+
+      \            additionalProperties: !strictSchemaValidation,\r
+
+      \            required: [\r
+
+      \                \"type\",\r
+
+      \                \"code\",\r
+
+      \                \"entries\",\r
+
+      \                \"totalPriceWithTolerances\",\r
+
+      \                \"subTotal\",\r
+
+      \                \"deliveryCost\",\r
+
+      \                \"summary\",\r
+
+      \                \"paymentPlan\",\r
+
+      \                \"pnpPaymentInfo\",\r
+
+      \                \"fulfilmentOption\",\r
+
+      \                \"totalItems\",\r
+
+      \                \"status\"\r
+
+      \            ],\r
+
+      \            properties: {\r
+
+      \                type:   { type: \"string\" },\r
+
+      \                code:   { type: \"string\" },\r
+
+      \                entries: {\r
+
+      \                    type: \"array\",\r
+
+      \                    items: {\r
+
+      \                        type: \"object\",\r
+
+      \                        additionalProperties: !strictSchemaValidation,\r
+
+      \                        required: [\r
+
+      \                            \"entryNumber\",\r
+
+      \                            \"quantity\",\r
+
+      \                            \"totalPrice\",\r
+
+      \                            \"product\"],\r
+
+      \                        properties: {\r
+
+      \                            entryNumber: { type: \"number\" },\r
+
+      \                            quantity:    { type: \"number\" },\r
+
+      \                            totalPrice: {\r
+
+      \                                type: \"object\",\r
+
+      \                                additionalProperties: !strictSchemaValidation,\r
+
+      \                                required: [\"currencyIso\", \"value\"],\r
+
+      \                                properties: {\r
+
+      \                                    currencyIso: { type: \"string\" },\r
+
+      \                                    value:       { type: \"number\" }\r
+
+      \                                }\r
+
+      \                            },\r
+
+      \                            product: {\r
+
+      \                                type: \"object\",\r
+
+      \                                additionalProperties: !strictSchemaValidation,\r
+
+      \                                required: [\"code\", \"name\"],\r
+
+      \                                properties: {\r
+
+      \                                    code: { type: \"string\" },\r
+
+      \                                    name: { type: \"string\" }\r
+
+      \                                }\r
+
+      \                            }\r
+
+      \                        }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                totalPriceWithTolerances: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\"currencyIso\", \"formattedValue\", \"value\"],\r
+
+      \                    properties: {\r
+
+      \                        currencyIso:     { type: \"string\" },\r
+
+      \                        formattedValue:  { type: \"string\" },\r
+
+      \                        value:           { type: \"number\" }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                subTotal: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\"currencyIso\", \"value\"],\r
+
+      \                    properties: {\r
+
+      \                        currencyIso: { type: \"string\" },\r
+
+      \                        value:       { type: \"number\" }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                deliveryCost: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\"currencyIso\", \"value\"],\r
+
+      \                    properties: {\r
+
+      \                        currencyIso: { type: \"string\" },\r
+
+      \                        value:       { type: \"number\" }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                summary: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\"summaryBreakdown\", \"totals\"],\r
+
+      \                    properties: {\r
+
+      \                        summaryBreakdown: {\r
+
+      \                            type: \"array\",\r
+
+      \                            items: {\r
+
+      \                                type: \"object\",\r
+
+      \                                additionalProperties: !strictSchemaValidation,\r
+
+      \                                required: [\"name\", \"value\", \"formattedValue\"],\r
+
+      \                                properties: {\r
+
+      \                                    name:           { type: \"string\" },\r
+
+      \                                    value:          { type: \"number\" },\r
+
+      \                                    formattedValue: { type: \"string\" }\r
+
+      \                                }\r
+
+      \                            }\r
+
+      \                        },\r
+
+      \                        totals: {\r
+
+      \                            type: \"object\",\r
+
+      \                            additionalProperties: !strictSchemaValidation,\r
+
+      \                            required: [\"cartTotal\", \"total\"],\r
+
+      \                            properties: {\r
+
+      \                                cartTotal: {\r
+
+      \                                    type: \"object\",\r
+
+      \                                    additionalProperties: !strictSchemaValidation,\r
+
+      \                                    required: [\"value\"],\r
+
+      \                                    properties: {\r
+
+      \                                        value: { type: \"number\" }\r
+
+      \                                    }\r
+
+      \                                },\r
+
+      \                                total: {\r
+
+      \                                    type: \"object\",\r
+
+      \                                    additionalProperties: !strictSchemaValidation,\r
+
+      \                                    required: [\"value\"],\r
+
+      \                                    properties: {\r
+
+      \                                        value: { type: \"number\" }\r
+
+      \                                    }\r
+
+      \                                }\r
+
+      \                            }\r
+
+      \                        }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                paymentPlan: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\"amountPaid\", \"paymentIntentions\"],\r
+
+      \                    properties: {\r
+
+      \                        amountPaid: {\r
+
+      \                            type: \"object\",\r
+
+      \                            additionalProperties: !strictSchemaValidation,\r
+
+      \                            required: [\"total\"],\r
+
+      \                            properties: {\r
+
+      \                                total: {\r
+
+      \                                    type: \"object\",\r
+
+      \                                    additionalProperties: !strictSchemaValidation,\r
+
+      \                                    required: [\"currencyIso\", \"value\"],\r
+
+      \                                    properties: {\r
+
+      \                                        currencyIso: { type: \"string\" },\r
+
+      \                                        value:       { type: \"number\" }\r
+
+      \                                    }\r
+
+      \                                }\r
+
+      \                            }\r
+
+      \                        },\r
+
+      \                        paymentIntentions: {\r
+
+      \                            type: \"array\",\r
+
+      \                            items: {\r
+
+      \                                type: \"object\",\r
+
+      \                                additionalProperties: !strictSchemaValidation,\r
+
+      \                                required: [\"amount\", \"code\"],\r
+
+      \                                properties: {\r
+
+      \                                    amount: { type: \"number\" },\r
+
+      \                                    code:   { type: \"string\" },\r
+
+      \                                    execution: {\r
+
+      \                                        type: \"object\",\r
+
+      \                                        additionalProperties: !strictSchemaValidation,\r
+
+      \                                        properties: {\r
+
+      \                                            code: { type: \"string\" }\r
+
+      \                                        }\r
+
+      \                                    }\r
+
+      \                                }\r
+
+      \                            }\r
+
+      \                        }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                pnpPaymentInfo: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\"id\", \"code\", \"cardAccountNumber\", \"creditCardTypeName\"],\r
+
+      \                    properties: {\r
+
+      \                        id:                 { type: \"string\" },\r
+
+      \                        code:               { type: \"string\" },\r
+
+      \                        cardAccountNumber:  { type: \"string\" },\r
+
+      \                        creditCardTypeName: { type: \"string\" }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                fulfilmentOption: {\r
+
+      \                    type: \"object\",\r
+
+      \                    additionalProperties: !strictSchemaValidation,\r
+
+      \                    required: [\"code\", \"displayName\"],\r
+
+      \                    properties: {\r
+
+      \                        code:        { type: \"string\" },\r
+
+      \                        displayName: { type: \"string\" }\r
+
+      \                    }\r
+
+      \                },\r
+
+      \                totalItems: { type: \"number\" },\r
+
+      \                status:     { type: \"string\" }\r
+
+      \            }\r
+
+      \        };\r
+
+      \r
+
+      \        // 🧩 ~~ Schema Validation Test ~~ 🧩\r
+
+      \        pm.test(\"[Orders Controller] Post Order - Response matches schema\", () => {\r
+
+      \            pm.response.to.have.jsonSchema(responseSchema);\r
+
+      \        });\r
+
+      \    }\r
+
+      \r
+
+      \    // 🧩 ~~ Functional Tests ~~ 🧩\r
+
+      \    if (runFunctionalTests) {\r
+
+      \r
+
+      \        // --- Complementary Functional Tests ---\r
+
+      \        pm.test(\"[Orders Controller] Post Order - Entries list is not empty\", () => {\r
+
+      \            pm.expect(entries.length).to.be.greaterThan(0);\r
+
+      \        });\r
+
+      \r
+
+      \        // --- Business Rule Functional Tests ---\r
+
+      \r
+
+      \        pm.test(\"[Orders Controller] Post Order - TotalItems matches sum of entry quantities\", () => {\r
+
+      \            var totalQuantity = entries.reduce(function (sum, entry) {\r
+
+      \                return sum + (entry.quantity || 0);\r
+
+      \            }, 0);\r
+
+      \            pm.expect(totalQuantity).to.eq(totalItems);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Orders Controller] Post Order - Order total matches summary total\", () => {\r
+
+      \            var summaryTotalValue = summary.totals && summary.totals.total && summary.totals.total.value;\r
+
+      \            pm.expect(totalPriceWithTolerances.value).to.eq(summaryTotalValue);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Orders Controller] Post Order - Order total equals subtotal plus delivery cost\", () => {\r
+
+      \            var expectedTotal = Number(subTotal.value) + Number(deliveryCost.value) + Number(toleranceValue)\r
+
+      \            pm.expect(totalPriceWithTolerances.value).to.eq(expectedTotal);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Orders Controller] Post Order - Order total matches stored cart total\", () => {\r
+
+      \            pm.expect(totalPriceWithTolerances.value).to.eq(storedTotalPrice);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Orders Controller] Post Order - PaymentPlan total matches order total\", () => {\r
+
+      \            pm.expect(amountPaidTotal.value).to.eq(totalPriceWithTolerances.value);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Orders Controller] Post Order - Payment execution code matches previous execution\", () => {\r
+
+      \            pm.expect(firstExecution.code).to.eq(paymentExecutionCode);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Orders Controller] Post Order - pnpPaymentInfo card matches selected card\", () => {\r
+
+      \            pm.expect(pnpPaymentInfo.id).to.eq(storedCardId);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Orders Controller] Post Order - pnpPaymentInfo payment id matches selected paymentId\", () => {\r
+
+      \            pm.expect(pnpPaymentInfo.code).to.eq(storedPaymentId);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Orders Controller] Post Order - Fulfilment option is Standard APP\", () => {\r
+
+      \            pm.expect(fulfilmentOption.code).to.eq(\"Standard APP\");\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Orders Controller] Post Order - Purchase order number is correct\", () => {\r
+
+      \            pm.expect(purchaseOrderNumber).to.eq(\"apiAuto1\");\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(\"[Orders Controller] Post Order - order status is CREATED\", () => {\r
+
+      \            pm.expect(jsonData.status).to.eq(\"CREATED\");\r
+
+      \        });\r
+
+      \    }\r
+
+      \r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - PASS =====`);\r
+
+      }\r
+
+      else {\r
+
+      \    // === Console Message ===\r
+
+      \    console.log(`===== ${pm.info.requestName} - FAIL =====`);\r
+
+      \    console.log(`Response Code: ${pm.response.code}`);\r
+
+      \    console.log(pm.response.text());\r
+
+      }\r
+
+      \r
+
+      pm.execution.setNextRequest(null)"
+    language: text/javascript
+order: 28000
