@@ -6,10 +6,10 @@
 //   postman collection run 35085411-5eeb9161-9f9a-46d0-93d7-c99bb5c59bfa -e 34239994-7845f2f5-6913-4cea-92d6-c3fcc7fc4643 --reporters json --reporter-json-export results.json
 //
 // Step 3 - Generate the HTML report:
-//   cd "C:\Users\x160002976\OneDrive - Pick n Pay\Desktop\Work\Automation\Reports"
-//   node index.js
+//   cd "C:\\Users\\x160002976\\OneDrive - Pick n Pay\\Desktop\\Work\\Automation\\Reports"
+//   node indexcopy.js
 //
-// Output: postman-report.html - Rubens change
+// Output: postman-report.html
 
 'use strict';
 
@@ -17,7 +17,7 @@ const fs = require('fs');
 const path = require('path');
 
 const resultsPath = path.join(__dirname, 'results.json');
-const outputPath = path.join(__dirname, 'postman-report.html');
+const outputPath  = path.join(__dirname, 'postman-report.html');
 
 if (!fs.existsSync(resultsPath)) {
   console.error('❌ results.json not found.');
@@ -27,15 +27,14 @@ if (!fs.existsSync(resultsPath)) {
   process.exit(1);
 }
 
-const raw = fs.readFileSync(resultsPath, 'utf8');
+const raw  = fs.readFileSync(resultsPath, 'utf8');
 const data = JSON.parse(raw);
 
 const collectionName = (data.run && data.run.meta && data.run.meta.collectionName) || 'Postman Collection';
-const runDate = new Date().toLocaleString();
+const runDate        = new Date().toLocaleString();
+const executions     = (data.run && data.run.executions) || [];
 
-const executions = (data.run && data.run.executions) || [];
-
-let totalTests = 0;
+let totalTests  = 0;
 let passedTests = 0;
 let failedTests = 0;
 
@@ -43,22 +42,35 @@ function escapeHtml(str) {
   if (str === null || str === undefined) return '';
   return String(str)
     .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+    .replace(/</g,  '&lt;')
+    .replace(/>/g,  '&gt;')
+    .replace(/"/g,  '&quot;')
+    .replace(/'/g,  '&#39;');
 }
 
-const requestBlocks = executions.map(exec => {
+const PAGE_SIZE = 10;
+
+let allBlocks          = '';
+let passedBlocks       = '';
+let failedBlocks       = '';
+let totalRequests      = executions.length;
+let passedRequestCount = 0;
+let failedRequestCount = 0;
+let allRequestCount    = 0;
+
+executions.forEach(exec => {
   const requestName = (exec.requestExecuted && exec.requestExecuted.name) || 'Unknown Request';
   const responseCode = (exec.response && exec.response.code) ? exec.response.code : 'N/A';
-  const assertions = exec.tests || [];
+  const assertions   = exec.tests || [];
 
-  let rows = '';
+  let rows      = '';
+  let hasFailed = false;
+
   assertions.forEach(a => {
-    const testName = escapeHtml(a.name || '');
-    const failed = a.error !== null && a.error !== undefined;
-    const errorMsg = failed ? escapeHtml(a.error && (a.error.message || String(a.error))) : '';
+    const testName  = escapeHtml(a.name || '');
+    const failed    = a.error !== null && a.error !== undefined;
+    if (failed) hasFailed = true;
+    const errorMsg    = failed ? escapeHtml(a.error && (a.error.message || String(a.error))) : '';
     const statusBadge = failed
       ? '<span style="background:#e74c3c;color:#fff;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:bold;">FAIL</span>'
       : '<span style="background:#2ecc71;color:#fff;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:bold;">PASS</span>';
@@ -87,8 +99,10 @@ const requestBlocks = executions.map(exec => {
       <tbody>${rows}</tbody>
     </table>` : '<p style="color:#888;font-size:13px;margin:8px 0 0 0;">No assertions found for this request.</p>';
 
-  return `
-    <details style="margin-bottom:10px;border:1px solid #ddd;border-radius:6px;overflow:hidden;">
+  const makeBlock = (tabName, idx) => {
+    const visibleClass = idx < PAGE_SIZE ? 'request-block visible' : 'request-block';
+    return `
+    <details class="${visibleClass}" data-tab="${tabName}" style="margin-bottom:10px;border:1px solid #ddd;border-radius:6px;overflow:hidden;">
       <summary style="padding:12px 16px;background:#ecf0f1;cursor:pointer;font-weight:600;font-size:15px;list-style:none;display:flex;justify-content:space-between;align-items:center;">
         <span>${escapeHtml(requestName)}</span>
         <span style="font-size:13px;color:#7f8c8d;font-weight:normal;">HTTP ${escapeHtml(String(responseCode))}</span>
@@ -97,10 +111,20 @@ const requestBlocks = executions.map(exec => {
         ${table}
       </div>
     </details>`;
-}).join('');
+  };
+
+  const allIdx = allRequestCount++;
+  allBlocks += makeBlock('all', allIdx);
+  if (hasFailed) {
+    failedBlocks += makeBlock('failed', failedRequestCount);
+    failedRequestCount++;
+  } else {
+    passedBlocks += makeBlock('passed', passedRequestCount);
+    passedRequestCount++;
+  }
+});
 
 const passRate = totalTests > 0 ? ((passedTests / totalTests) * 100).toFixed(1) : '0.0';
-const totalRequests = executions.length;
 
 const html = `<!DOCTYPE html>
 <html lang="en">
@@ -126,8 +150,20 @@ const html = `<!DOCTYPE html>
     .chart-section { background: #fff; border-radius: 8px; padding: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); margin-bottom: 30px; text-align: center; }
     .chart-section h2 { font-size: 18px; margin-bottom: 16px; color: #2c3e50; }
     .chart-wrapper { display: inline-block; width: 280px; height: 280px; }
-    .results-section h2 { font-size: 18px; margin-bottom: 16px; color: #2c3e50; }
+    .results-section h2 { font-size: 18px; margin-bottom: 12px; color: #2c3e50; }
     details summary::-webkit-details-marker { display: none; }
+    .tab-bar { display: flex; gap: 0; border-bottom: 2px solid #ddd; margin-bottom: 16px; }
+    .tab-btn { background: none; border: none; padding: 10px 20px; font-size: 14px; font-weight: 600; color: #7f8c8d; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color 0.15s, border-color 0.15s; }
+    .tab-btn:hover { color: #2c3e50; }
+    .tab-btn.active { color: #2c3e50; border-bottom-color: #2c3e50; }
+    .tab-btn.active.passed { color: #27ae60; border-bottom-color: #2ecc71; }
+    .tab-btn.active.failed { color: #c0392b; border-bottom-color: #e74c3c; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .request-block { display: none; }
+    .request-block.visible { display: block; }
+    .view-more-btn { display: block; margin: 16px auto 0; background: none; border: 1px solid #3498db; color: #3498db; padding: 8px 28px; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s, color 0.15s; }
+    .view-more-btn:hover { background: #3498db; color: #fff; }
   </style>
 </head>
 <body>
@@ -168,11 +204,55 @@ const html = `<!DOCTYPE html>
 
     <div class="results-section">
       <h2>Request Details</h2>
-      ${requestBlocks || '<p style="color:#888;">No executions found in results.json.</p>'}
+      <div class="tab-bar">
+        <button class="tab-btn active" id="btn-all"    onclick="switchTab('all',    this)">All (${totalRequests})</button>
+        <button class="tab-btn passed"  id="btn-passed" onclick="switchTab('passed', this)">Passed (${passedRequestCount})</button>
+        <button class="tab-btn failed"  id="btn-failed" onclick="switchTab('failed', this)">Failed (${failedRequestCount})</button>
+      </div>
+
+      <div id="tab-all" class="tab-panel active">
+        ${allBlocks || '<p style="color:#888;">No executions found in results.json.</p>'}
+        ${totalRequests > 10 ? `<button class="view-more-btn" onclick="toggleViewMore('all', this)">View More (${totalRequests - 10} more)</button>` : ''}
+      </div>
+
+      <div id="tab-passed" class="tab-panel">
+        ${passedBlocks || '<p style="color:#888;">No fully-passed requests.</p>'}
+        ${passedRequestCount > 10 ? `<button class="view-more-btn" onclick="toggleViewMore('passed', this)">View More (${passedRequestCount - 10} more)</button>` : ''}
+      </div>
+
+      <div id="tab-failed" class="tab-panel">
+        ${failedBlocks || '<p style="color:#888;">No failed requests.</p>'}
+        ${failedRequestCount > 10 ? `<button class="view-more-btn" onclick="toggleViewMore('failed', this)">View More (${failedRequestCount - 10} more)</button>` : ''}
+      </div>
     </div>
   </div>
 
   <script>
+    function switchTab(name, btn) {
+      document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.getElementById('tab-' + name).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function toggleViewMore(tabName, btn) {
+      var panel    = document.getElementById('tab-' + tabName);
+      var blocks   = panel.querySelectorAll('.request-block');
+      var expanded = btn.getAttribute('data-expanded') === 'true';
+      if (!expanded) {
+        blocks.forEach(function(b) { b.classList.add('visible'); });
+        btn.textContent = 'View Less';
+        btn.setAttribute('data-expanded', 'true');
+      } else {
+        blocks.forEach(function(b, i) {
+          if (i >= 10) b.classList.remove('visible');
+        });
+        btn.textContent = 'View More (' + (blocks.length - 10) + ' more)';
+        btn.setAttribute('data-expanded', 'false');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
     const ctx = document.getElementById('resultsChart').getContext('2d');
     new Chart(ctx, {
       type: 'doughnut',
@@ -181,7 +261,7 @@ const html = `<!DOCTYPE html>
         datasets: [{
           data: [${passedTests}, ${failedTests}],
           backgroundColor: ['#2ecc71', '#e74c3c'],
-          borderColor: ['#27ae60', '#c0392b'],
+          borderColor:     ['#27ae60', '#c0392b'],
           borderWidth: 2
         }]
       },
@@ -194,7 +274,7 @@ const html = `<!DOCTYPE html>
             callbacks: {
               label: function(context) {
                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                const pct = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                const pct   = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
                 return context.label + ': ' + context.parsed + ' (' + pct + '%)';
               }
             }
